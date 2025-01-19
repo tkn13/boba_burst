@@ -18,7 +18,7 @@ namespace bubble_puzzle.GameObject
         public Texture2D[] bubbleTexture;
         public GameBoard(Texture2D texture) : base(texture)
         {
-            board = new int[8, 13];
+            board = new int[13, 8];
             bubbles = new List<Bubble>();
             bubbleTexture = new Texture2D[6];
             aimAssistant = new AimAssistant(null);
@@ -67,7 +67,7 @@ namespace bubble_puzzle.GameObject
                     Vector2 direction = Singleton.Instance.CurrentMouse.Position.ToVector2() - GameConstants.SHOOT_PIVOT_POSITION;
                     aimAssistant.Rotation = (float)Math.Atan2(direction.Y, direction.X);
                     // minus 90 degree to make the aim assistant point to the mouse position
-                    aimAssistant.Rotation -= MathHelper.ToRadians(90);
+                    aimAssistant.Rotation -= MathHelper.ToRadians(-90);
 
                     //limit the rotation of the aim assistant to 80 degree
                     if (aimAssistant.Rotation > MathHelper.ToRadians(80))
@@ -108,8 +108,10 @@ namespace bubble_puzzle.GameObject
                     }
 
                     //check if the bubble is collide with the another bubble
-                    if (currentBubble.isCollide(bubbles))
+                    if (currentBubble.isCollide(bubbles) != null)
                     {
+                        Bubble colledBubble = currentBubble.isCollide(bubbles);
+                        placeBubble(currentBubble, colledBubble);
                         bubbles.Add(currentBubble);
                         currentGameState = GameState.BubbleReload;
                     }
@@ -154,10 +156,10 @@ namespace bubble_puzzle.GameObject
 
                     break;
                 case GameState.Shoot:
-                    
+
                     break;
                 case GameState.BubbleBounce:
-                    
+
                     break;
                 case GameState.BubbleMatch:
                     break;
@@ -173,7 +175,7 @@ namespace bubble_puzzle.GameObject
         public override void Reset()
         {
             //Reset the board
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < 13; i++)
             {
                 for (int j = 0; j < 8; j++)
                 {
@@ -231,6 +233,23 @@ namespace bubble_puzzle.GameObject
         //find the right position for the bubble to be placed
         public void placeBubble(Bubble currentBubble, Bubble colledBubble)
         {
+            //if the reference point of current bubble is more than the half of the colled bubble then the current bubble will be placed on the right side of the colled bubble
+            if (currentBubble.Position.X < colledBubble.Position.X + GameConstants.TILE_SIZE / 2)
+            {
+                currentBubble.Position = new Vector2(colledBubble.Position.X - (GameConstants.TILE_SIZE / 2), colledBubble.Position.Y + GameConstants.TILE_SIZE);
+            }
+            else
+            {
+                currentBubble.Position = new Vector2(colledBubble.Position.X + (GameConstants.TILE_SIZE / 2), colledBubble.Position.Y + GameConstants.TILE_SIZE);
+            }
+        }
+
+        // public bool checkGameOver()
+        // {
+
+        // }
+        public void gameOver()
+        {
 
         }
         //drop the bubble from the top
@@ -240,11 +259,22 @@ namespace bubble_puzzle.GameObject
         }
 
         //check the current placement of the bubble
-        public bool checkMatch(Bubble currentBubble)
+        public List<Bubble> checkMatch(Bubble currentBubble)
         {
+            List<Bubble> matchBubbles = new List<Bubble>();
             int row = currentBubble.row;
             int col = currentBubble.col;
-            return false;
+
+            return matchBubbles;
+
         }
+
+        public int checkFall(List<Bubble> bubbles)
+        {
+            int fallCount = 0;
+
+            return fallCount;
+        }
+
     }
 }

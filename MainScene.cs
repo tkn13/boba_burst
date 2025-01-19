@@ -85,7 +85,7 @@ public class MainScene : Game
            Vector2 titleSize = _font.MeasureString("Debug Mode");
             _spriteBatch.DrawString(_font, "Debug Mode", GameConstants.DEBUG_POSITION - new Vector2(titleSize.X / 2, 0), Color.White);
            //parint array of board
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < 13; i++)
             {
                 for (int j = 0; j < 8; j++)
                 {

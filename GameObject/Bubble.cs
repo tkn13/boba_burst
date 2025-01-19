@@ -42,7 +42,7 @@ namespace bubble_puzzle.GameObject
             this.texture = texture;
         }
 
-        public bool isCollide(List<Bubble> bubbles)
+        public Bubble isCollide(List<Bubble> bubbles)
         {
             foreach (Bubble bubble in bubbles)
             {
@@ -52,11 +52,11 @@ namespace bubble_puzzle.GameObject
                     Vector2 centerBubble = new Vector2(bubble.Position.X + GameConstants.TILE_SIZE / 2, bubble.Position.Y + GameConstants.TILE_SIZE / 2);
                     if (Vector2.Distance(centerRef, centerBubble) < GameConstants.TILE_SIZE)
                     {
-                        return true;
+                        return bubble;
                     }
                 }
             }
-            return false;
+            return null;
         }
     }
 }

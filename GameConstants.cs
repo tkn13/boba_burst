@@ -14,9 +14,11 @@ public static class GameConstants
     public const int GAME_WINDOW_WIDTH = 15;
     public const int GAME_WINDOW_HEIGHT = 15;
 
+    public const int GAME_OVER_LINE = 11;
+
     public static Vector2 BOARD_POSITION = new Vector2(TILE_SIZE, TILE_SIZE);
     public static Vector2 SCORE_POSITION = new Vector2(TILE_SIZE * 10, TILE_SIZE);
-    public static Vector2 SHOOT_POSITION = new Vector2(((TILE_SIZE * 4) + (TILE_SIZE / 2)), TILE_SIZE * 10);
+    public static Vector2 SHOOT_POSITION = new Vector2(((TILE_SIZE * 4) + (TILE_SIZE / 2)), TILE_SIZE * 11);
     public static Vector2 SHOOT_PIVOT_POSITION = new  Vector2(SHOOT_POSITION.X + (TILE_SIZE / 2), SHOOT_POSITION.Y + (TILE_SIZE / 2));
 
     public static Vector2 DEBUG_POSITION = new Vector2(TILE_SIZE * 10, TILE_SIZE * 3);
