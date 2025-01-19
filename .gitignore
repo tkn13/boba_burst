@@ -1,0 +1,48 @@
+# Ignore build output directories
+bin/
+obj/
+
+# User-specific files
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Logs and database files
+*.log
+*.pidb
+
+# MonoGame Pipeline cache files
+*.mgcb.cache
+
+# Temporary and backup files
+*.tmp
+*.bak
+*.swp
+*.orig
+*.rej
+
+# Build artifacts
+*.dll
+*.exe
+*.pdb
+*.app
+*.so
+*.dylib
+*.lib
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Rider IDE project files
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Visual Studio-specific files
+*.vs/
