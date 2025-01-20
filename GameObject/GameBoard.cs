@@ -65,18 +65,30 @@ namespace bubble_puzzle.GameObject
 
                     break;
                 case GameState.Aim:
+
+                    //check if mouse is in the game window
+                    if (Singleton.Instance.CurrentMouse.X < 0 || Singleton.Instance.CurrentMouse.X > GameConstants.GAME_WINDOW_WIDTH || Singleton.Instance.CurrentMouse.Y < 0 || Singleton.Instance.CurrentMouse.Y > GameConstants.GAME_WINDOW_HEIGHT)
+                    {
+                        break;
+                    }
+
                     //roate the aim assistant with mouse position the angle is calculated by the angle between the mouse position and the shoot pivot position
                     Vector2 direction = Singleton.Instance.CurrentMouse.Position.ToVector2() - GameConstants.SHOOT_PIVOT_POSITION;
                     aimAssistant.Rotation = (float)Math.Atan2(direction.Y, direction.X);
                     // minus 90 degree to make the aim assistant point to the mouse position
-                    aimAssistant.Rotation -= MathHelper.ToRadians(-90);
+                    aimAssistant.Rotation += MathHelper.ToRadians(90);
 
+                    Singleton.Instance.MouseRotateValue = MathHelper.ToDegrees(aimAssistant.Rotation).ToString();
                     //limit the rotation of the aim assistant to 80 degree
-                    if (aimAssistant.Rotation > MathHelper.ToRadians(80))
+
+                    
+
+                    if (aimAssistant.Rotation > MathHelper.ToRadians(80) && aimAssistant.Rotation < MathHelper.ToRadians(170))
                     {
                         aimAssistant.Rotation = MathHelper.ToRadians(80);
                     }
-                    else if (aimAssistant.Rotation < MathHelper.ToRadians(-80))
+
+                    if (aimAssistant.Rotation < MathHelper.ToRadians(-80) || aimAssistant.Rotation >= MathHelper.ToRadians(170))
                     {
                         aimAssistant.Rotation = MathHelper.ToRadians(-80);
                     }

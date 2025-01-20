@@ -12,8 +12,8 @@ public static class GameConstants
     public const int BOARD_WIDTH = 8;
     public const int BOARD_HEIGHT = 13;
 
-    public const int GAME_WINDOW_WIDTH = 15;
-    public const int GAME_WINDOW_HEIGHT = 15;
+    public const int GAME_WINDOW_WIDTH = 15 * TILE_SIZE;
+    public const int GAME_WINDOW_HEIGHT = 15 * TILE_SIZE;
 
     public const int GAME_OVER_LINE = 11;
     public static Vector2 BOARD_POSITION = new Vector2(TILE_SIZE, TILE_SIZE);
