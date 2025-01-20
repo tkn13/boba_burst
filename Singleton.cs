@@ -1,6 +1,4 @@
-
 using bubble_puzzle.GameObject;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace bubbleTea
@@ -25,7 +23,7 @@ namespace bubbleTea
         {
             get
             {
-                if(instance == null)
+                if (instance == null)
                 {
                     instance = new Singleton();
                 }
