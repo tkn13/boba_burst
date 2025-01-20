@@ -42,21 +42,34 @@ namespace bubble_puzzle.GameObject
             this.texture = texture;
         }
 
+
+        /*
+        Loop through all bubbles and check if the bubble is collide with other bubbles
+        and select the closest bubble to collide with
+        */
         public Bubble isCollide(List<Bubble> bubbles)
-        {
+        {   
+            Bubble closestBubble = null;
+            float minDistance = float.MaxValue;
+
             foreach (Bubble bubble in bubbles)
             {
                 if (bubble != this)
                 {   
                     Vector2 centerRef = new Vector2(Position.X + GameConstants.TILE_SIZE / 2, Position.Y + GameConstants.TILE_SIZE / 2);
                     Vector2 centerBubble = new Vector2(bubble.Position.X + GameConstants.TILE_SIZE / 2, bubble.Position.Y + GameConstants.TILE_SIZE / 2);
-                    if (Vector2.Distance(centerRef, centerBubble) < GameConstants.TILE_SIZE)
+                    if (Vector2.Distance(centerRef, centerBubble) < GameConstants.HITBOX_SIZE)
                     {
-                        return bubble;
+                        float distance = Vector2.Distance(centerRef, centerBubble);
+                        if (distance < minDistance)
+                        {
+                            minDistance = distance;
+                            closestBubble = bubble;
+                        }
                     }
                 }
             }
-            return null;
+            return closestBubble;
         }
     }
 }
