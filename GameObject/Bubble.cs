@@ -6,6 +6,7 @@ namespace bubble_puzzle.GameObject
 {
     public class Bubble : GameObject
     {
+        bool isHighlighted = false;
         public BubbleType currentBubbleType;
         public int row, col;
         public Bubble(Texture2D texture) : base(texture)
@@ -20,6 +21,16 @@ namespace bubble_puzzle.GameObject
         public override void Draw(SpriteBatch spriteBatch)
         {
             spriteBatch.Draw(texture, Position, null, Color.White, Rotation, Vector2.Zero, Scale, SpriteEffects.None, 0);
+
+            //draw highlight red square cover the bubble with transparent
+            if (isHighlighted)
+            {
+                Texture2D highlightTexture = new Texture2D(spriteBatch.GraphicsDevice, 1, 1);
+                highlightTexture.SetData(new Color[] { Color.Red * 0.5f });
+
+                spriteBatch.Draw(highlightTexture, Position, null, Color.White, Rotation, Vector2.Zero, GameConstants.HITBOX_SIZE, SpriteEffects.None, 0);
+            }
+
             base.Draw(spriteBatch);
         }
 
@@ -34,7 +45,7 @@ namespace bubble_puzzle.GameObject
         {
             currentBubbleType = type[GameConstants.random.Next(0, type.Length)];
 
-            return (int) currentBubbleType;
+            return (int)currentBubbleType;
         }
 
         public void setTexture(Texture2D texture)
@@ -48,14 +59,14 @@ namespace bubble_puzzle.GameObject
         and select the closest bubble to collide with
         */
         public Bubble isCollide(List<Bubble> bubbles)
-        {   
+        {
             Bubble closestBubble = null;
             float minDistance = float.MaxValue;
 
             foreach (Bubble bubble in bubbles)
             {
                 if (bubble != this)
-                {   
+                {
                     Vector2 centerRef = new Vector2(Position.X + GameConstants.TILE_SIZE / 2, Position.Y + GameConstants.TILE_SIZE / 2);
                     Vector2 centerBubble = new Vector2(bubble.Position.X + GameConstants.TILE_SIZE / 2, bubble.Position.Y + GameConstants.TILE_SIZE / 2);
                     if (Vector2.Distance(centerRef, centerBubble) < GameConstants.HITBOX_SIZE)
