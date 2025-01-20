@@ -42,6 +42,13 @@ public class MainScene : Game
         _backgroudTexture = Content.Load<Texture2D>("image/game_asset_05");
         _gameBoardTexture = Content.Load<Texture2D>("image/game_asset_04");
         Singleton.Instance.gameBoard.texture = _gameBoardTexture;
+        
+        //create highlight texture
+        Texture2D _highlight = new Texture2D(GraphicsDevice, GameConstants.HITBOX_SIZE, GameConstants.HITBOX_SIZE);
+        Color[] data2 = new Color[GameConstants.HITBOX_SIZE * GameConstants.HITBOX_SIZE];
+        for (int i = 0; i < data2.Length; ++i) data2[i] = new Color(255, 0, 0, 100);
+        _highlight.SetData(data2);
+        Singleton.Instance.gameBoard.highlightTexture = _highlight;
 
         _maptext = LoadTextFile("Content/map.txt");
         Singleton.Instance.gameBoard.mapText = _maptext;
