@@ -1,4 +1,6 @@
-﻿using bubbleTea;
+﻿using System;
+using System.IO;
+using bubbleTea;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -10,7 +12,9 @@ public class MainScene : Game
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
     private SpriteFont _font;
+    private Texture2D _backgroudTexture;
     private Texture2D _gameBoardTexture;
+    private string _maptext;
 
     public MainScene()
     {
@@ -35,16 +39,19 @@ public class MainScene : Game
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-        _gameBoardTexture = Content.Load<Texture2D>("image/game_asset_02");
+        _backgroudTexture = Content.Load<Texture2D>("image/game_asset_05");
+        _gameBoardTexture = Content.Load<Texture2D>("image/game_asset_04");
         Singleton.Instance.gameBoard.texture = _gameBoardTexture;
+
+        _maptext = LoadTextFile("Content/map.txt");
+        Singleton.Instance.gameBoard.mapText = _maptext;
 
         //load all of buble texture into array
         for (int i = 0; i < Singleton.Instance.gameBoard.bubbleTexture.Length; i++)
         {
-            Singleton.Instance.gameBoard.bubbleTexture[i] = Content.Load<Texture2D>("image/game_asset_01");
+            Singleton.Instance.gameBoard.bubbleTexture[i] = Content.Load<Texture2D>("image/eggs/bubble0" + i);
         }
         Singleton.Instance.gameBoard.Reset();
-
         //load all of score texture into array
         for (int i = 0; i < Singleton.Instance.scoreObject.scoreTexture.Length; i++)
         {
@@ -77,17 +84,22 @@ public class MainScene : Game
 
         _spriteBatch.Begin();
 
+        _spriteBatch.Draw(_backgroudTexture, new Vector2(0, 0), Color.White);
         Singleton.Instance.gameBoard.Draw(_spriteBatch);
         Singleton.Instance.scoreObject.Draw(_spriteBatch);
 
         if(GameConstants.DEBUG_MODE)
-        {
-           Vector2 titleSize = _font.MeasureString("Debug Mode");
-            _spriteBatch.DrawString(_font, "Debug Mode", GameConstants.DEBUG_POSITION - new Vector2(titleSize.X / 2, 0), Color.White);
+        {  
+            Texture2D _react = new Texture2D(GraphicsDevice, 64* 5, 64 * 7 );
+            Color[] data = new Color[64 * 64 * 5 * 7];
+            for (int i = 0; i < data.Length; ++i) data[i] = Color.Black ;
+            _react.SetData(data);
+            _spriteBatch.Draw(_react, GameConstants.DEBUG_POSITION, Color.White);
+            _spriteBatch.DrawString(_font, "Debug Mode", GameConstants.DEBUG_POSITION, Color.White);
            //parint array of board
             for (int i = 0; i < 13; i++)
             {
-                for (int j = 0; j < 8; j++)
+                for (int j = 0; j < 9; j++)
                 {
                     Vector2 position = new Vector2(GameConstants.DEBUG_POSITION.X + (j * 32), GameConstants.DEBUG_POSITION.Y + (i * 32) + 32);
                     _spriteBatch.DrawString(_font, Singleton.Instance.gameBoard.board[i, j].ToString(), position, Color.White);
@@ -100,5 +112,14 @@ public class MainScene : Game
         _graphics.BeginDraw();
 
         base.Draw(gameTime);
+    }
+
+    private string LoadTextFile(string filePath)
+    {
+        using (var stream = TitleContainer.OpenStream(filePath))
+        using (var reader = new StreamReader(stream))
+        {
+            return reader.ReadToEnd();
+        }
     }
 }
