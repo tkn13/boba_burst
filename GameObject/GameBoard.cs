@@ -154,7 +154,6 @@ namespace bubble_puzzle.GameObject
                     float length = direction.Length();
 
                     spriteBatch.Draw(lineTexture, pivot, null, Color.Red, angle, Vector2.Zero, new Vector2(length, 1), SpriteEffects.None, 0);
-                    checkFall(new List<Bubble>());
                     break;
                 case GameState.Shoot:
 
@@ -189,7 +188,7 @@ namespace bubble_puzzle.GameObject
 
             string[] lines = mapText.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
             for (int i = 0; i < 13; i++)
-            {  
+            {
                 string trimmed = lines[i].Trim();
                 trimmed = trimmed.Replace(" ", "");
                 string[] line = trimmed.Split(',');
@@ -201,13 +200,13 @@ namespace bubble_puzzle.GameObject
                         Bubble bubble = new Bubble(null);
                         //if last element of the row is 99 then the bubble will be placed as a even row
                         //else if -99 the bubble will be placed as a odd row
-                        if(int.Parse(line[8]) == 99)
+                        if (int.Parse(line[8]) == 99)
                         {
-                            bubble.Position = new Vector2(GameConstants.BOARD_POSITION.X  + (GameConstants.TILE_SIZE * j), GameConstants.BOARD_POSITION.Y + (GameConstants.TILE_SIZE * i));
+                            bubble.Position = new Vector2(GameConstants.BOARD_POSITION.X + (GameConstants.TILE_SIZE * j), GameConstants.BOARD_POSITION.Y + (GameConstants.TILE_SIZE * i));
                         }
                         else
                         {
-                            bubble.Position = new Vector2(GameConstants.BOARD_POSITION.X  + (GameConstants.TILE_SIZE * j) + (GameConstants.TILE_SIZE / 2), GameConstants.BOARD_POSITION.Y + (GameConstants.TILE_SIZE * i));
+                            bubble.Position = new Vector2(GameConstants.BOARD_POSITION.X + (GameConstants.TILE_SIZE * j) + (GameConstants.TILE_SIZE / 2), GameConstants.BOARD_POSITION.Y + (GameConstants.TILE_SIZE * i));
                         }
                         bubble.setTexture(bubbleTexture[board[i, j]]);
                         bubble.row = i;
@@ -283,37 +282,99 @@ namespace bubble_puzzle.GameObject
                     }
                 }
             }
-            Print2DArray(boardVisited);
 
-            var group = (Points: new List<Point>(), isConnectTop: false);
+            List<Tuple<List<Point>, bool>> group = new List<Tuple<List<Point>, bool>>();
             for (int i = 0; i < board.GetLength(0); i++)
             {
-                int endArray = board[i, 0] == 99 ? 9 : 8;
+                int endArray = board[i, 0] == 99 ? 8 : 7;
 
-                for (int j = 1; j < endArray; j++)
+                for (int j = 0; j < endArray; j++)
                 {
                     if (!boardVisited[i, j])
                     {
-
+                        mst(new Point(i, j), boardVisited, group);
                     }
+                }
+            }
+
+            foreach(Tuple<List<Point>, bool> curGroup in group)
+            {
+                if(!curGroup.Item2) {
+                    fallCount += curGroup.Item1.Count;
                 }
             }
 
             return fallCount;
         }
 
-        static void Print2DArray(bool[,] array)
+        private void mst(Point currentPoint, bool[,] boardVisited, List<Tuple<List<Point>, bool>> group)
         {
-            int rows = array.GetLength(0);
-            int columns = array.GetLength(1);
-
-            for (int i = 0; i < rows; i++)
+            Stack<Point> stack = new Stack<Point>();
+            List<Point> groupTemp = new List<Point>();
+            bool isConnectTop = false;
+            stack.Push(new Point(0, 0));
+            boardVisited[currentPoint.X, currentPoint.Y] = true;
+            while (stack.Count != 0)
             {
-                for (int j = 0; j < columns; j++)
+                Point cur = stack.Pop();
+                if (cur.X == 0) isConnectTop = true;
+
+                if (cur.Y >= 0 && !boardVisited[cur.X, cur.Y - 1])
                 {
-                    Console.Write(array[i, j] + " ");
+                    stack.Push(new Point(cur.X, cur.Y - 1));
+                    groupTemp.Add(new Point(cur.X, cur.Y - 1));
+                    boardVisited[cur.X, cur.Y - 1] = true;
                 }
-                Console.WriteLine();
+                if (cur.Y + 1 < 8 && !boardVisited[cur.X, cur.Y + 1])
+                {
+                    stack.Push(new Point(cur.X, cur.Y + 1));
+                    groupTemp.Add(new Point(cur.X, cur.Y + 1));
+                    boardVisited[cur.X, cur.Y + 1] = true;
+                }
+                if (cur.X - 1 >= 0 && !boardVisited[cur.X - 1, cur.Y])
+                {
+                    stack.Push(new Point(cur.X - 1, cur.Y));
+                    groupTemp.Add(new Point(cur.X - 1, cur.Y));
+                    boardVisited[cur.X - 1, cur.Y] = true;
+                }
+                if (cur.X + 1 <= 8 && !boardVisited[cur.X + 1, cur.Y])
+                {
+                    stack.Push(new Point(cur.X + 1, cur.Y));
+                    groupTemp.Add(new Point(cur.X + 1, cur.Y));
+                    boardVisited[cur.X + 1, cur.Y] = true;
+                }
+
+                if (board[cur.X, 8] == 99)
+                {
+                    if (cur.X - 1 >= 0 && cur.Y - 1 >= 0 && !boardVisited[cur.X - 1, cur.Y - 1])
+                    {
+                        stack.Push(new Point(cur.X - 1, cur.Y - 1));
+                        groupTemp.Add(new Point(cur.X - 1, cur.Y - 1));
+                        boardVisited[cur.X - 1, cur.Y - 1] = true;
+                    }
+                    if (cur.X + 1 <= 8 && cur.Y - 1 >= 0 && !boardVisited[cur.X + 1, cur.Y - 1])
+                    {
+                        stack.Push(new Point(cur.X + 1, cur.Y - 1));
+                        groupTemp.Add(new Point(cur.X + 1, cur.Y - 1));
+                        boardVisited[cur.X + 1, cur.Y - 1] = true;
+                    }
+                }
+                else
+                {
+                    if (cur.X - 1 >= 0 && cur.Y + 1 <= 8 && !boardVisited[cur.X - 1, cur.Y + 1])
+                    {
+                        stack.Push(new Point(cur.X - 1, cur.Y + 1));
+                        groupTemp.Add(new Point(cur.X - 1, cur.Y + 1));
+                        boardVisited[cur.X - 1, cur.Y + 1] = true;
+                    }
+                    if (cur.X + 1 <= 8 && cur.Y + 1 <= 8 && !boardVisited[cur.X + 1, cur.Y + 1])
+                    {
+                        stack.Push(new Point(cur.X + 1, cur.Y + 1));
+                        groupTemp.Add(new Point(cur.X + 1, cur.Y + 1));
+                        boardVisited[cur.X + 1, cur.Y + 1] = true;
+                    }
+                }
+                group.Add(new Tuple<List<Point>, bool>(groupTemp, isConnectTop));
             }
         }
     }
