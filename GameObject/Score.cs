@@ -1,3 +1,5 @@
+using System;
+using bubbleTea;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -20,11 +22,23 @@ namespace bubble_puzzle.GameObject
         //Draw score until 8 digits base on Singletons score by using scoreTexture[i]
         //first index is 0 and last index is 9
         public override void Draw(SpriteBatch spriteBatch)
-        {   
-            for(int i = 0; i < 8; i++)
+        {  
+            string number = Singleton.Instance.score.ToString("D8");
+            int numberLength = number.Length;
+
+            for (int i = 0; i < numberLength; i++)
             {
-                spriteBatch.Draw(scoreTexture[0], new Vector2(Position.X + (i * 32), Position.Y), null, Color.White, Rotation, Vector2.Zero, Scale, SpriteEffects.None, 0);
+                spriteBatch.Draw(scoreTexture[int.Parse(number[i].ToString())], new Vector2(Position.X + (GameConstants.SCORE_TILE_SIZE * i), Position.Y), Color.White);
             }
+            //Console.WriteLine(number);
+            // string[] numberArray = number.Split("");
+            // Console.WriteLine(numberArray);
+            // Console.WriteLine(numberArray.Length);
+            // for (int i = 0; i < numberArray.Length; i++)
+            // {
+            //     spriteBatch.Draw(scoreTexture[int.Parse(numberArray[i])], new Vector2(Position.X + (GameConstants.SCORE_TILE_SIZE * i), Position.Y), Color.White);
+            // }
+            
             base.Draw(spriteBatch);
         }
 
