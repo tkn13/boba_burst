@@ -153,7 +153,7 @@ namespace bubble_puzzle.GameObject
                     float length = direction.Length();
 
                     spriteBatch.Draw(lineTexture, pivot, null, Color.Red, angle, Vector2.Zero, new Vector2(length, 1), SpriteEffects.None, 0);
-
+                    checkFall(new List<Bubble>());
                     break;
                 case GameState.Shoot:
 
@@ -273,8 +273,58 @@ namespace bubble_puzzle.GameObject
         {
             int fallCount = 0;
 
+            foreach (Bubble curBubble in bubbles)
+            {
+                board[curBubble.row, curBubble.col] = -1;
+            }
+
+            bool[,] boardVisited = new bool[board.GetLength(0), board.GetLength(1)];
+            for (int i = 0; i < boardVisited.GetLength(0); i++)
+            {
+                for (int j = 0; j < boardVisited.GetLength(1); j++)
+                {
+                    if (board[i, j] == -1 || board[i, j] == 99 || board[i, j] == -99)
+                    {
+                        boardVisited[i, j] = true;
+                    }
+                    else
+                    {
+                        boardVisited[i, j] = false;
+                    }
+                }
+            }
+            Print2DArray(boardVisited);
+
+            var group = (Points: new List<Point>(), isConnectTop: false);
+            for (int i = 0; i < board.GetLength(0); i++)
+            {
+                int endArray = board[i, 0] == 99 ? 9 : 8;
+
+                for (int j = 1; j < endArray; j++)
+                {
+                    if (!boardVisited[i, j])
+                    {
+
+                    }
+                }
+            }
+
             return fallCount;
         }
 
+        static void Print2DArray(bool[,] array)
+        {
+            int rows = array.GetLength(0);
+            int columns = array.GetLength(1);
+
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < columns; j++)
+                {
+                    Console.Write(array[i, j] + " ");
+                }
+                Console.WriteLine();
+            }
+        }
     }
 }
