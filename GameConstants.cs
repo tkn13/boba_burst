@@ -7,6 +7,7 @@ public static class GameConstants
 {
     public const bool DEBUG_MODE = true;
     public const int TILE_SIZE = 64;
+    public const int SCORE_TILE_SIZE = 32;
     public const int HITBOX_SIZE = 45;
 
     public const int BOARD_WIDTH = 8;
