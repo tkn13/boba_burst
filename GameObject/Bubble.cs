@@ -16,6 +16,26 @@ namespace bubble_puzzle.GameObject
 
         public override void Update(GameTime gameTime)
         {
+            Vector2 direaction = Velocity;
+            direaction.Normalize();
+
+            Position += direaction * GameConstants.MOVE_SPEED * (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            //check if the bubble is collide with the right wall
+            if (Position.X + GameConstants.TILE_SIZE > GameConstants.BOARD_POSITION.X + (GameConstants.TILE_SIZE * 8))
+            {
+                Position.X = GameConstants.BOARD_POSITION.X + (GameConstants.TILE_SIZE * 8) - GameConstants.TILE_SIZE;
+                Velocity.X *= -1;
+            }
+
+            //check if the bubble is collide with the left wall
+            if (Position.X < GameConstants.BOARD_POSITION.X)
+            {
+                Position.X = GameConstants.BOARD_POSITION.X;
+                Velocity.X *= -1;
+            }
+
+
             base.Update(gameTime);
         }
 
@@ -84,6 +104,15 @@ namespace bubble_puzzle.GameObject
                 }
             }
             return closestBubble;
+        }
+
+        public bool isCollideWithRoof()
+        {
+            if (Position.Y < GameConstants.BOARD_POSITION.Y)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }
