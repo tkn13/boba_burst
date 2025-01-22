@@ -12,6 +12,8 @@ namespace bubbleTea
         public int score;
         public MouseState PreviousMouse, CurrentMouse;
 
+        //debug value
+        public string MouseRotateValue = "0";
         private Singleton()
         {
             gameBoard = new GameBoard(null);
