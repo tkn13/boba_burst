@@ -9,7 +9,9 @@ namespace bubble_puzzle.GameObject
 {
     public class GameBoard : GameObject
     {
-        public int[,] board;
+        //row type is infromation about the row type true is even row and false is odd row
+        public Bubble[,] board;
+        public bool[] rowType;
         private float _tick;
         List<Bubble> bubbles;
         Bubble currentBubble;
@@ -19,7 +21,8 @@ namespace bubble_puzzle.GameObject
         public string mapText;
         public GameBoard(Texture2D texture) : base(texture)
         {
-            board = new int[13, 9];
+            board = new Bubble[13, 8];
+            rowType = new bool[13];
             bubbles = new List<Bubble>();
             bubbleTexture = new Texture2D[6];
             aimAssistant = new AimAssistant(null);
@@ -180,9 +183,9 @@ namespace bubble_puzzle.GameObject
             //Reset the board
             for (int i = 0; i < 13; i++)
             {
-                for (int j = 0; j < 9; j++)
+                for (int j = 0; j < 8; j++)
                 {
-                    board[i, j] = -1;
+                    board[i, j] = null;
                 }
             }
 
@@ -195,26 +198,39 @@ namespace bubble_puzzle.GameObject
                 string trimmed = lines[i].Trim();
                 trimmed = trimmed.Replace(" ", "");
                 string[] line = trimmed.Split(',');
-                for (int j = 0; j < 9; j++)
+                //create new bubble;
+                for (int j = 0; j < 8; j++)
                 {
-                    board[i, j] = int.Parse(line[j]);
-                    if (board[i, j] != -1 && j < 8)
+                    //update row type
+                    if (line[8] == "99")
                     {
-                        Bubble bubble = new Bubble(null);
-                        //if last element of the row is 99 then the bubble will be placed as a even row
-                        //else if -99 the bubble will be placed as a odd row
-                        if (int.Parse(line[8]) == 99)
+                        rowType[i] = true;
+                    }
+                    else
+                    {
+                        rowType[i] = false;
+                    }
+
+                    if (line[j] != "-1")
+                    {
+                        BubbleType type = (BubbleType)int.Parse(line[j]);
+                        Bubble bubble = new Bubble(bubbleTexture[(int)type]);
+                        bubble.row = i;
+                        bubble.col = j;
+                        bubble.currentBubbleType = type;
+                        board[i, j] = bubble;
+                        bubbles.Add(bubble);
+
+                        //set the position of the bubble base on the row type
+                        if(rowType[i])
                         {
                             bubble.Position = new Vector2(GameConstants.BOARD_POSITION.X + (GameConstants.TILE_SIZE * j), GameConstants.BOARD_POSITION.Y + (GameConstants.TILE_SIZE * i));
                         }
                         else
                         {
                             bubble.Position = new Vector2(GameConstants.BOARD_POSITION.X + (GameConstants.TILE_SIZE * j) + (GameConstants.TILE_SIZE / 2), GameConstants.BOARD_POSITION.Y + (GameConstants.TILE_SIZE * i));
+
                         }
-                        bubble.setTexture(bubbleTexture[board[i, j]], highlightTexture);
-                        bubble.row = i;
-                        bubble.col = j;
-                        bubbles.Add(bubble);
                     }
                 }
             }
@@ -234,7 +250,7 @@ namespace bubble_puzzle.GameObject
                 centerX -= GameConstants.BOARD_POSITION.X;
                 int placePosition = 0;
                 int divider = 0;
-                if (board[0, 8] == 99)
+                if (rowType[0] == true)
                 {
                     divider = GameConstants.TILE_SIZE;
                     placePosition = (int)(centerX / divider);
@@ -251,7 +267,7 @@ namespace bubble_puzzle.GameObject
                     {
                         currentBubble.Position.X = GameConstants.BOARD_POSITION.X;
                     }
-                    else if(placePosition > 6)
+                    else if (placePosition > 6)
                     {
                         currentBubble.Position.X = GameConstants.BOARD_POSITION.X + (GameConstants.TILE_SIZE * 7);
                     }
@@ -292,7 +308,7 @@ namespace bubble_puzzle.GameObject
                         then the current bubble which is the odd line have to shift to the bottom right
                         */
 
-                        if (board[colledBubble.row, 8] == 99 && colledBubble.col == 0)
+                        if (rowType[colledBubble.row] == true && colledBubble.col == 0)
                         {
                             //Console.WriteLine("SHIFT");
                             currentBubble.Position = new Vector2(colledBubble.Position.X + half, colledBubble.Position.Y + GameConstants.TILE_SIZE);
@@ -322,7 +338,7 @@ namespace bubble_puzzle.GameObject
                         check if the colled bubble is in the even row and is the last element of the row
                         then the current bubble which is the odd line have to shift to the bottom left
                         */
-                        if (board[colledBubble.row, 8] == 99 && colledBubble.col == 7)
+                        if (rowType[colledBubble.row] == true && colledBubble.col == 7)
                         {
                             currentBubble.Position = new Vector2(colledBubble.Position.X - half, colledBubble.Position.Y + GameConstants.TILE_SIZE);
                         }
@@ -345,7 +361,7 @@ namespace bubble_puzzle.GameObject
 
             row = ((int)(currentBubble.Position.Y / GameConstants.TILE_SIZE)) - 1;
 
-            if (board[row, 8] == 99)
+            if (rowType[row] == true)
             {
                 col = ((int)(currentBubble.Position.X / GameConstants.TILE_SIZE)) - 1;
             }
@@ -356,7 +372,7 @@ namespace bubble_puzzle.GameObject
 
             currentBubble.row = row;
             currentBubble.col = col;
-            board[row, col] = (int)currentBubble.currentBubbleType;
+            board[row, col] = currentBubble;
         }
 
         // public bool checkGameOver()
