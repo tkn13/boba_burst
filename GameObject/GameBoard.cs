@@ -212,7 +212,8 @@ namespace bubble_puzzle.GameObject
                     if (line[j] != "-1")
                     {
                         BubbleType type = (BubbleType)int.Parse(line[j]);
-                        Bubble bubble = new Bubble(bubbleTexture[(int)type]);
+                        Bubble bubble = new Bubble(null);
+                        bubble.setTexture(bubbleTexture[(int)type], highlightTexture);
                         bubble.row = i;
                         bubble.col = j;
                         bubble.currentBubbleType = type;
