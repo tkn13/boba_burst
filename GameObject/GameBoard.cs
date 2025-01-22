@@ -9,7 +9,6 @@ namespace bubble_puzzle.GameObject
 {
     public class GameBoard : GameObject
     {
-
         public int[,] board;
         private float _tick;
         List<Bubble> bubbles;
@@ -280,13 +279,13 @@ namespace bubble_puzzle.GameObject
                     //top
                     if (diffY > 0)
                     {
-                        Console.WriteLine("topleft");
+                        //Console.WriteLine("topleft");
                         currentBubble.Position = new Vector2(colledBubble.Position.X - GameConstants.TILE_SIZE, colledBubble.Position.Y);
                     }
                     //bottom
                     else
                     {
-                        Console.WriteLine("bottomleft");
+                        //Console.WriteLine("bottomleft");
 
                         /*
                         check if the colled bubble is in the even row and is the first element of the row
@@ -295,12 +294,12 @@ namespace bubble_puzzle.GameObject
 
                         if (board[colledBubble.row, 8] == 99 && colledBubble.col == 0)
                         {
-                            Console.WriteLine("SHIFT");
+                            //Console.WriteLine("SHIFT");
                             currentBubble.Position = new Vector2(colledBubble.Position.X + half, colledBubble.Position.Y + GameConstants.TILE_SIZE);
                         }
                         else
                         {
-                            Console.WriteLine("NO SHIFT");
+                            //Console.WriteLine("NO SHIFT");
                             currentBubble.Position = new Vector2(colledBubble.Position.X - half, colledBubble.Position.Y + GameConstants.TILE_SIZE);
                         }
 
@@ -312,13 +311,13 @@ namespace bubble_puzzle.GameObject
                     //top
                     if (diffY > 0)
                     {
-                        Console.WriteLine("topright");
+                        //Console.WriteLine("topright");
                         currentBubble.Position = new Vector2(colledBubble.Position.X + GameConstants.TILE_SIZE, colledBubble.Position.Y);
                     }
                     //bottom
                     else
                     {
-                        Console.WriteLine("bottomright");
+                        //Console.WriteLine("bottomright");
                         /*
                         check if the colled bubble is in the even row and is the last element of the row
                         then the current bubble which is the odd line have to shift to the bottom left
@@ -384,6 +383,7 @@ namespace bubble_puzzle.GameObject
 
             stack.Push(currentBubble);
             visited.Add(currentBubble);
+            Console.WriteLine();
 
             while (stack.Count > 0)
             {
