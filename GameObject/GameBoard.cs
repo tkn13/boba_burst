@@ -114,10 +114,11 @@ namespace bubble_puzzle.GameObject
                         placeBubble(currentBubble, colledBubble);
                         bubbles.Add(currentBubble);
                         currentGameState = GameState.BubbleReload;
+                        //currentGameState = GameState.BubbleMatch;
                     }
                     break;
                 case GameState.BubbleMatch:
-
+                    // currentGameState = GameState.BubbleReload;
                     break;
                 case GameState.BubbleFall:
                     break;
@@ -262,11 +263,73 @@ namespace bubble_puzzle.GameObject
         public List<Bubble> checkMatch(Bubble currentBubble)
         {
             List<Bubble> matchBubbles = new List<Bubble>();
-            int row = currentBubble.row;
-            int col = currentBubble.col;
+            HashSet<Bubble> visited = new HashSet<Bubble>();
+            Stack<Bubble> stack = new Stack<Bubble>();
+
+            stack.Push(currentBubble);
+            visited.Add(currentBubble);
+
+            while (stack.Count > 0)
+            {
+                Bubble bubble = stack.Pop();
+                matchBubbles.Add(bubble);
+
+                // Check all neighboring bubbles
+                foreach (Bubble neighbor in GetNeighbors(bubble))
+                {
+                    if (!visited.Contains(neighbor) && neighbor.currentBubbleType == currentBubble.currentBubbleType)
+                    {
+                        visited.Add(neighbor);
+                        stack.Push(neighbor);
+                    }
+                }
+            }
+
+            //Console.WriteLine(matchBubbles.Count);
 
             return matchBubbles;
+        }
 
+        private List<Bubble> GetNeighbors(Bubble bubble)
+        {
+            List<Bubble> neighbors = new List<Bubble>();
+
+            int[][] positions = new int[][]
+            {
+                new int[] { -1,  0 }, // Top-left
+                new int[] { -1,  1 }, // Top-right
+                new int[] {  0, -1 }, // Left
+                new int[] {  0,  1 }, // Right
+                new int[] {  1, -1 }, // Bottom-left
+                new int[] {  1,  0 }  // Bottom-right
+            };
+
+            foreach (int[] position in positions)
+            {
+                int newRow = bubble.row + position[0];
+                int newCol = bubble.col + position[1];
+
+                if (newRow >= 0 && newRow < board.GetLength(0) && newCol >= 0 && newCol < board.GetLength(1))
+                {
+                    // Check if there is a bubble in the specified position
+                    Bubble neighbor = null;
+                    foreach (Bubble b in bubbles)
+                    {
+                        if (b.row == newRow && b.col == newCol)
+                        {
+                            neighbor = b;
+                            break;
+                        }
+                    }
+
+                    if (neighbor != null)
+                    {
+                        neighbors.Add(neighbor);
+                    }
+                }
+            }
+
+            return neighbors;
         }
 
         public int checkFall(List<Bubble> bubbles)
