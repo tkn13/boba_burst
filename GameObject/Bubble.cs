@@ -6,7 +6,8 @@ namespace bubble_puzzle.GameObject
 {
     public class Bubble : GameObject
     {
-        bool isHighlighted = false;
+        bool isHighlighted = true;
+        public Texture2D highlightTexture;
         public BubbleType currentBubbleType;
         public int row, col;
         public Bubble(Texture2D texture) : base(texture)
@@ -15,6 +16,26 @@ namespace bubble_puzzle.GameObject
 
         public override void Update(GameTime gameTime)
         {
+            Vector2 direaction = Velocity;
+            direaction.Normalize();
+
+            Position += direaction * GameConstants.MOVE_SPEED * (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            //check if the bubble is collide with the right wall
+            if (Position.X + GameConstants.TILE_SIZE > GameConstants.BOARD_POSITION.X + (GameConstants.TILE_SIZE * 8))
+            {
+                Position.X = GameConstants.BOARD_POSITION.X + (GameConstants.TILE_SIZE * 8) - GameConstants.TILE_SIZE;
+                Velocity.X *= -1;
+            }
+
+            //check if the bubble is collide with the left wall
+            if (Position.X < GameConstants.BOARD_POSITION.X)
+            {
+                Position.X = GameConstants.BOARD_POSITION.X;
+                Velocity.X *= -1;
+            }
+
+
             base.Update(gameTime);
         }
 
@@ -25,10 +46,12 @@ namespace bubble_puzzle.GameObject
             //draw highlight red square cover the bubble with transparent
             if (isHighlighted)
             {
-                Texture2D highlightTexture = new Texture2D(spriteBatch.GraphicsDevice, 1, 1);
-                highlightTexture.SetData(new Color[] { Color.Red * 0.5f });
+                //Texture2D highlightTexture = new Texture2D(spriteBatch.GraphicsDevice, GameConstants.HITBOX_SIZE, GameConstants.HITBOX_SIZE);
 
-                spriteBatch.Draw(highlightTexture, Position, null, Color.White, Rotation, Vector2.Zero, GameConstants.HITBOX_SIZE, SpriteEffects.None, 0);
+                Vector2 center = new Vector2(GameConstants.HITBOX_SIZE / 2, GameConstants.HITBOX_SIZE / 2);
+                Vector2 centerBubble = new Vector2(Position.X + GameConstants.TILE_SIZE / 2, Position.Y + GameConstants.TILE_SIZE / 2);
+
+                spriteBatch.Draw(highlightTexture, centerBubble, null, Color.White, Rotation, center, 1, SpriteEffects.None, 0);
             }
 
             base.Draw(spriteBatch);
@@ -48,11 +71,11 @@ namespace bubble_puzzle.GameObject
             return (int)currentBubbleType;
         }
 
-        public void setTexture(Texture2D texture)
+        public void setTexture(Texture2D texture, Texture2D highlightTexture)
         {
             this.texture = texture;
+            this.highlightTexture = highlightTexture;
         }
-
 
         /*
         Loop through all bubbles and check if the bubble is collide with other bubbles
@@ -81,6 +104,15 @@ namespace bubble_puzzle.GameObject
                 }
             }
             return closestBubble;
+        }
+
+        public bool isCollideWithRoof()
+        {
+            if (Position.Y < GameConstants.BOARD_POSITION.Y)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }
