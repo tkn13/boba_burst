@@ -403,7 +403,7 @@ namespace bubble_puzzle.GameObject
 
             foreach (Bubble curBubble in bubbles)
             {
-                board[curBubble.row, curBubble.col] = -1;
+                board[curBubble.row, curBubble.col] = null;
             }
 
             bool[,] boardVisited = new bool[board.GetLength(0), board.GetLength(1)];
@@ -411,7 +411,7 @@ namespace bubble_puzzle.GameObject
             {
                 for (int j = 0; j < boardVisited.GetLength(1); j++)
                 {
-                    if (board[i, j] == -1 || board[i, j] == 99 || board[i, j] == -99)
+                    if (board[i, j] == null)
                     {
                         boardVisited[i, j] = true;
                     }
@@ -425,7 +425,7 @@ namespace bubble_puzzle.GameObject
             List<Tuple<List<Point>, bool>> group = new List<Tuple<List<Point>, bool>>();
             for (int i = 0; i < board.GetLength(0); i++)
             {
-                int endArray = board[i, 0] == 99 ? 8 : 7;
+                int endArray = rowType[i] ? 8 : 7;
 
                 for (int j = 0; j < endArray; j++)
                 {
@@ -483,7 +483,7 @@ namespace bubble_puzzle.GameObject
                     boardVisited[cur.X + 1, cur.Y] = true;
                 }
 
-                if (board[cur.X, 8] == 99)
+                if (rowType[cur.X])
                 {
                     if (cur.X - 1 >= 0 && cur.Y - 1 >= 0 && !boardVisited[cur.X - 1, cur.Y - 1])
                     {
