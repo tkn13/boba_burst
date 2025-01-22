@@ -16,9 +16,10 @@ namespace bubble_puzzle.GameObject
         Bubble currentBubble;
         public AimAssistant aimAssistant;
         public Texture2D[] bubbleTexture;
+        public string mapText;
         public GameBoard(Texture2D texture) : base(texture)
         {
-            board = new int[13, 8];
+            board = new int[13, 9];
             bubbles = new List<Bubble>();
             bubbleTexture = new Texture2D[6];
             aimAssistant = new AimAssistant(null);
@@ -178,7 +179,7 @@ namespace bubble_puzzle.GameObject
             //Reset the board
             for (int i = 0; i < 13; i++)
             {
-                for (int j = 0; j < 8; j++)
+                for (int j = 0; j < 9; j++)
                 {
                     board[i, j] = -1;
                 }
@@ -187,45 +188,34 @@ namespace bubble_puzzle.GameObject
             //Destroy all bubbles
             bubbles.Clear();
 
-            //Spawn new bubbles for first 3 rows by first and second row have 8 bubbles and third row have 7 bubbles
-
-            for (int j = 0; j < 8; j++)
-            {
-                Bubble bubble = new Bubble(null);
-                bubble.Position = new Vector2((GameConstants.TILE_SIZE * j) + Position.X, (GameConstants.TILE_SIZE * 0) + Position.Y);
-                int bubleType = bubble.RandomBubbleType(0.5f, new BubbleType[] { BubbleType.Red, BubbleType.Green, BubbleType.Blue, BubbleType.Yellow });
-                bubble.setTexture(bubbleTexture[bubleType]);
-                bubbles.Add(bubble);
-
-                board[0, j] = bubleType;
-                bubble.row = 0;
-                bubble.col = j;
-            }
-
-            for (int i = 0; i < 7; i++)
-            {
-                Bubble bubble = new Bubble(null);
-                bubble.Position = new Vector2((GameConstants.TILE_SIZE * i) + Position.X + (Position.X / 2), (GameConstants.TILE_SIZE * 1) + Position.Y);
-                int bubleType = bubble.RandomBubbleType(0.5f, new BubbleType[] { BubbleType.Red, BubbleType.Green, BubbleType.Blue, BubbleType.Yellow });
-                bubble.setTexture(bubbleTexture[bubleType]);
-                bubbles.Add(bubble);
-
-                board[1, i] = bubleType;
-                bubble.row = 1;
-                bubble.col = i;
-            }
-
-            for (int j = 0; j < 8; j++)
-            {
-                Bubble bubble = new Bubble(null);
-                bubble.Position = new Vector2((GameConstants.TILE_SIZE * j) + Position.X, (GameConstants.TILE_SIZE * 2) + Position.Y);
-                int bubleType = bubble.RandomBubbleType(0.5f, new BubbleType[] { BubbleType.Red, BubbleType.Green, BubbleType.Blue, BubbleType.Yellow });
-                bubble.setTexture(bubbleTexture[bubleType]);
-                bubbles.Add(bubble);
-
-                board[2, j] = bubleType;
-                bubble.row = 2;
-                bubble.col = j;
+            string[] lines = mapText.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            for (int i = 0; i < 13; i++)
+            {  
+                string trimmed = lines[i].Trim();
+                trimmed = trimmed.Replace(" ", "");
+                string[] line = trimmed.Split(',');
+                for (int j = 0; j < 9; j++)
+                {
+                    board[i, j] = int.Parse(line[j]);
+                    if (board[i, j] != -1 && j < 8)
+                    {
+                        Bubble bubble = new Bubble(null);
+                        //if last element of the row is 99 then the bubble will be placed as a even row
+                        //else if -99 the bubble will be placed as a odd row
+                        if(int.Parse(line[8]) == 99)
+                        {
+                            bubble.Position = new Vector2(GameConstants.BOARD_POSITION.X  + (GameConstants.TILE_SIZE * j), GameConstants.BOARD_POSITION.Y + (GameConstants.TILE_SIZE * i));
+                        }
+                        else
+                        {
+                            bubble.Position = new Vector2(GameConstants.BOARD_POSITION.X  + (GameConstants.TILE_SIZE * j) + (GameConstants.TILE_SIZE / 2), GameConstants.BOARD_POSITION.Y + (GameConstants.TILE_SIZE * i));
+                        }
+                        bubble.setTexture(bubbleTexture[board[i, j]]);
+                        bubble.row = i;
+                        bubble.col = j;
+                        bubbles.Add(bubble);
+                    }
+                }
             }
 
             base.Reset();
