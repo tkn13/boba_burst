@@ -56,6 +56,7 @@ namespace bubble_puzzle.GameObject
                 case GameState.BubbleReload:
 
                     currentBubble = new Bubble(null);
+                    currentBubble.isHighlighted = true;
                     currentBubble.Position = GameConstants.SHOOT_POSITION;
                     int bubleType = currentBubble.RandomBubbleType(0.5f, new BubbleType[] { BubbleType.Red, BubbleType.Green, BubbleType.Blue, BubbleType.Yellow });
                     currentBubble.setTexture(bubbleTexture[bubleType]);
@@ -114,12 +115,13 @@ namespace bubble_puzzle.GameObject
                         Bubble colledBubble = currentBubble.isCollide(bubbles);
                         placeBubble(currentBubble, colledBubble);
                         bubbles.Add(currentBubble);
-                        currentGameState = GameState.BubbleReload;
-                        //currentGameState = GameState.BubbleMatch;
+                        //currentGameState = GameState.BubbleReload;
+                        currentGameState = GameState.BubbleMatch;
                     }
                     break;
                 case GameState.BubbleMatch:
-                    // currentGameState = GameState.BubbleReload;
+                    checkMatch(currentBubble);
+                    currentGameState = GameState.BubbleReload;
                     break;
                 case GameState.BubbleFall:
                     break;
@@ -239,6 +241,7 @@ namespace bubble_puzzle.GameObject
         // {
 
         // }
+
         public void gameOver()
         {
 
@@ -275,7 +278,7 @@ namespace bubble_puzzle.GameObject
                 }
             }
 
-            //Console.WriteLine(matchBubbles.Count);
+            Console.WriteLine("Match Count: " + matchBubbles.Count);
 
             return matchBubbles;
         }
@@ -286,12 +289,12 @@ namespace bubble_puzzle.GameObject
 
             int[][] positions = new int[][]
             {
-                new int[] { -1,  0 }, // Top-left
-                new int[] { -1,  1 }, // Top-right
-                new int[] {  0, -1 }, // Left
-                new int[] {  0,  1 }, // Right
-                new int[] {  1, -1 }, // Bottom-left
-                new int[] {  1,  0 }  // Bottom-right
+                [-1,  0], // Top-left
+                [-1,  1], // Top-right
+                [0, -1], // Left
+                [0,  1], // Right
+                [1, -1], // Bottom-left
+                [1,  0]  // Bottom-right
             };
 
             foreach (int[] position in positions)

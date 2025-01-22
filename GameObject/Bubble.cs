@@ -6,7 +6,7 @@ namespace bubble_puzzle.GameObject
 {
     public class Bubble : GameObject
     {
-        bool isHighlighted = false;
+        public bool isHighlighted = false;
         public BubbleType currentBubbleType;
         public int row, col;
         public Bubble(Texture2D texture) : base(texture)
