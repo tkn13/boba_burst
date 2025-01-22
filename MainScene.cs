@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using bubble_puzzle.GameObject;
 using bubbleTea;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -106,11 +107,14 @@ public class MainScene : Game
            //parint array of board
             for (int i = 0; i < 13; i++)
             {
-                for (int j = 0; j < 9; j++)
+                for (int j = 0; j < 8; j++)
                 {
                     Vector2 position = new Vector2(GameConstants.DEBUG_POSITION.X + (j * 32), GameConstants.DEBUG_POSITION.Y + (i * 32) + 32);
-                    _spriteBatch.DrawString(_font, Singleton.Instance.gameBoard.board[i, j].ToString(), position, Color.White);
+                    string bubbleType = Singleton.Instance.gameBoard.board[i, j] == null ? "-1" : ((int)(Singleton.Instance.gameBoard.board[i, j].currentBubbleType)) + "";
+                    _spriteBatch.DrawString(_font, bubbleType, position, Color.White);
                 }
+                string rowType = Singleton.Instance.gameBoard.rowType[i] ? "99" : "-99";
+                _spriteBatch.DrawString(_font, rowType, new Vector2(GameConstants.DEBUG_POSITION.X + 32 * 8, GameConstants.DEBUG_POSITION.Y + (i * 32) + 32), Color.White);
             }
             _spriteBatch.DrawString(_font, "Mouse Rotate Value: " + Singleton.Instance.MouseRotateValue, new Vector2(GameConstants.DEBUG_POSITION.X, GameConstants.DEBUG_POSITION.Y + 32 * 18), Color.White);
 
