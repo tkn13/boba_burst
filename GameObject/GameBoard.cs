@@ -256,7 +256,6 @@ namespace bubble_puzzle.GameObject
             int col = currentBubble.col;
 
             return matchBubbles;
-
         }
 
         public int checkFall(List<Bubble> bubbles)
@@ -265,6 +264,5 @@ namespace bubble_puzzle.GameObject
 
             return fallCount;
         }
-
     }
 }
