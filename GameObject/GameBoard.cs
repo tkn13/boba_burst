@@ -9,7 +9,6 @@ namespace bubble_puzzle.GameObject
 {
     public class GameBoard : GameObject
     {
-
         //row type is infromation about the row type true is even row and false is odd row
         public Bubble[,] board;
         public bool[] rowType;
@@ -59,6 +58,7 @@ namespace bubble_puzzle.GameObject
                 case GameState.BubbleReload:
 
                     currentBubble = new Bubble(null);
+                    //currentBubble.isHighlighted = true;
                     currentBubble.Position = GameConstants.SHOOT_POSITION;
                     int bubleType = currentBubble.RandomBubbleType(0.5f, new BubbleType[] { BubbleType.Red, BubbleType.Green, BubbleType.Blue, BubbleType.Yellow });
                     currentBubble.setTexture(bubbleTexture[bubleType], highlightTexture);
@@ -122,11 +122,13 @@ namespace bubble_puzzle.GameObject
                         placeBubble(currentBubble, colledBubble);
                         currentBubble.Velocity = Vector2.Zero;
                         bubbles.Add(currentBubble);
-                        currentGameState = GameState.BubbleReload;
+                        //currentGameState = GameState.BubbleReload;
+                        currentGameState = GameState.BubbleMatch;
                     }
                     break;
                 case GameState.BubbleMatch:
-
+                    checkMatch(currentBubble);    
+                    currentGameState = GameState.BubbleReload;
                     break;
                 case GameState.BubbleFall:
                     break;
@@ -441,6 +443,7 @@ namespace bubble_puzzle.GameObject
         {
 
         }
+
         //drop the bubble from the top
         public void ceilingDrop()
         {
@@ -451,11 +454,90 @@ namespace bubble_puzzle.GameObject
         public List<Bubble> checkMatch(Bubble currentBubble)
         {
             List<Bubble> matchBubbles = new List<Bubble>();
-            int row = currentBubble.row;
-            int col = currentBubble.col;
+            HashSet<Bubble> visited = new HashSet<Bubble>();
+            Stack<Bubble> stack = new Stack<Bubble>();
+
+            stack.Push(currentBubble);
+            visited.Add(currentBubble);
+
+            while (stack.Count > 0)
+            {
+                Bubble bubble = stack.Pop();
+                bubble.isHighlighted = true;
+                matchBubbles.Add(bubble);
+
+                // Check all neighboring bubbles
+                foreach (Bubble neighbor in GetNeighbors(bubble))
+                {
+                    if (!visited.Contains(neighbor) && neighbor.currentBubbleType == currentBubble.currentBubbleType)
+                    {
+                        visited.Add(neighbor);
+                        stack.Push(neighbor);
+                    }
+                }
+            }
+
+            //Console.WriteLine("Match Count: " + matchBubbles.Count);
+
+            if(matchBubbles.Count < 3)
+            {
+                matchBubbles = null;
+                //Console.WriteLine("matchBubbles is null");
+            }
 
             return matchBubbles;
+        }
 
+        private List<Bubble> GetNeighbors(Bubble bubble)
+        {
+            List<Bubble> neighbors = new List<Bubble>();
+            int[][] positions;
+
+            if (rowType[bubble.row])
+            {
+                // Even row
+                positions =
+                [
+                    [-1, -1], // Top-left
+                    [-1,  0], // Top-right
+                    [0, -1], // Left
+                    [0,  1], // Right
+                    [1, -1], // Bottom-left
+                    [1,  0]  // Bottom-right
+                ];
+            }
+            else
+            {
+                // Odd row
+                positions =
+                [
+                    [-1,  0], // Top-left
+                    [-1,  1], // Top-right
+                    [0, -1], // Left
+                    [0,  1], // Right
+                    [1,  0], // Bottom-left
+                    [1,  1]  // Bottom-right
+                ];
+            }
+
+            // Add valid neighbors
+            foreach (var position in positions)
+            {
+                int newRow = bubble.row + position[0];
+                int newCol = bubble.col + position[1];
+
+                if (newRow >= 0 && newRow < board.GetLength(0) &&
+                    newCol >= 0 && newCol < board.GetLength(1))
+                {
+                    Bubble neighbor = board[newRow, newCol];
+                    if (neighbor != null)
+                    {
+                        neighbors.Add(neighbor);
+                    }
+                }
+            }
+
+            return neighbors;
         }
 
         public int checkFall(List<Bubble> bubbles)
