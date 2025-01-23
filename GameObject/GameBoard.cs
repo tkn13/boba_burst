@@ -45,7 +45,6 @@ namespace bubble_puzzle.GameObject
 
         public override void Update(GameTime gameTime)
         {
-            Singleton.Instance.CurrentMouse = Mouse.GetState();
             _tick += (float)gameTime.ElapsedGameTime.Ticks / TimeSpan.TicksPerSecond;
             //rotate the aim assistant clockwise every 1 second 10 degree
             if (_tick > 5)
@@ -73,6 +72,12 @@ namespace bubble_puzzle.GameObject
                     if (Singleton.Instance.CurrentMouse.X < 0 || Singleton.Instance.CurrentMouse.X > GameConstants.GAME_WINDOW_WIDTH || Singleton.Instance.CurrentMouse.Y < 0 || Singleton.Instance.CurrentMouse.Y > GameConstants.GAME_WINDOW_HEIGHT)
                     {
                         break;
+                    }
+
+                    //check if spacebar is pressed then reset the game
+                    if (Singleton.Instance.CurrentKeyboard.IsKeyDown(Keys.Space) && Singleton.Instance.PreviousKeyboard.IsKeyUp(Keys.Space))
+                    {
+                        Reset();
                     }
 
                     //roate the aim assistant with mouse position the angle is calculated by the angle between the mouse position and the shoot pivot position
@@ -126,8 +131,6 @@ namespace bubble_puzzle.GameObject
                 case GameState.BubbleFall:
                     break;
             }
-
-            Singleton.Instance.PreviousMouse = Singleton.Instance.CurrentMouse;
             base.Update(gameTime);
         }
 
@@ -234,12 +237,59 @@ namespace bubble_puzzle.GameObject
                 }
             }
 
+            currentGameState = GameState.BubbleReload;
+            aimAssistant.Rotation = 0;
+            Singleton.Instance.score = 0;
+
             base.Reset();
         }
 
         //find the right position for the bubble to be placed
         public void placeBubble(Bubble currentBubble, Bubble colledBubble)
-        {
+        {   
+
+            Bubble getLeftChild(Bubble bubble)
+            {
+                bool isEven = rowType[bubble.row];
+                if (isEven)
+                {
+                    if (bubble.col - 1 >= 0 && bubble.row + 1 < 13)
+                    {
+                        return board[bubble.row + 1, bubble.col - 1];
+                    }
+                }
+                else
+                {
+                    if (bubble.row + 1 < 13)
+                    {
+                        return board[bubble.row + 1, bubble.col];
+                    }
+
+                }
+                return null;
+            }
+
+            Bubble getRightChild(Bubble bubble)
+            {
+                bool isEven = rowType[bubble.row];
+                if (isEven)
+                {
+                    if (bubble.row + 1 < 13)
+                    {
+                        return board[bubble.row + 1, bubble.col];
+                    }
+                }
+                else
+                {
+                    if (bubble.col + 1 < 8 || bubble.row + 1 < 13)
+                    {
+                        return board[bubble.row + 1, bubble.col + 1];
+                    }
+
+                }
+                return null;
+            }
+
             //if the colled bubbles is null means that the bubble is colled with the roof place the bubble at the top
             if (colledBubble == null)
             {
@@ -279,7 +329,8 @@ namespace bubble_puzzle.GameObject
             }
 
             else
-            {
+            {   
+                //First Element of this list is the closest bubble to the current bubble then we will use this as a main reference when placing the bubble is not occupied
                 Vector2 currentBubbleCenter = new Vector2(currentBubble.Position.X + GameConstants.TILE_SIZE / 2, currentBubble.Position.Y + GameConstants.TILE_SIZE / 2);
                 Vector2 colledBubbleCenter = new Vector2(colledBubble.Position.X + GameConstants.TILE_SIZE / 2, colledBubble.Position.Y + GameConstants.TILE_SIZE / 2);
 
@@ -294,14 +345,11 @@ namespace bubble_puzzle.GameObject
                     //top
                     if (diffY > 0)
                     {
-                        Console.WriteLine("topleft");
                         currentBubble.Position = new Vector2(colledBubble.Position.X - GameConstants.TILE_SIZE, colledBubble.Position.Y);
                     }
                     //bottom
                     else
                     {
-                        Console.WriteLine("bottomleft");
-
                         /*
                         check if the colled bubble is in the even row and is the first element of the row
                         then the current bubble which is the odd line have to shift to the bottom right
@@ -309,16 +357,25 @@ namespace bubble_puzzle.GameObject
 
                         if (rowType[colledBubble.row] == true && colledBubble.col == 0)
                         {
-                            Console.WriteLine("SHIFT");
                             currentBubble.Position = new Vector2(colledBubble.Position.X + half, colledBubble.Position.Y + GameConstants.TILE_SIZE);
                         }
                         else
                         {
-                            Console.WriteLine("NO SHIFT");
-                            currentBubble.Position = new Vector2(colledBubble.Position.X - half, colledBubble.Position.Y + GameConstants.TILE_SIZE);
+                            /*
+                            check if the bottom left is empty if not then compare with the second element of the colled bubble
+                            if current bubble colled with the second element at the right then place the current bubble at the bottom right at main reference
+                            if current buuble coolled with the second element at the left then place the current bubble at the top left at main reference
+                            */
+                            if(getLeftChild(colledBubble) == null)
+                            {
+                                currentBubble.Position = new Vector2(colledBubble.Position.X - half, colledBubble.Position.Y + GameConstants.TILE_SIZE);
+                            }
+                            else
+                            {   
+                                Console.WriteLine("LEFT Child is not null adjust the position");
+                                currentBubble.Position = new Vector2(colledBubble.Position.X + half, colledBubble.Position.Y + GameConstants.TILE_SIZE);
+                            }
                         }
-
-
                     }
                 }
                 else
@@ -326,13 +383,11 @@ namespace bubble_puzzle.GameObject
                     //top
                     if (diffY > 0)
                     {
-                        Console.WriteLine("topright");
                         currentBubble.Position = new Vector2(colledBubble.Position.X + GameConstants.TILE_SIZE, colledBubble.Position.Y);
                     }
                     //bottom
                     else
                     {
-                        Console.WriteLine("bottomright");
                         /*
                         check if the colled bubble is in the even row and is the last element of the row
                         then the current bubble which is the odd line have to shift to the bottom left
@@ -343,7 +398,15 @@ namespace bubble_puzzle.GameObject
                         }
                         else
                         {
-                            currentBubble.Position = new Vector2(colledBubble.Position.X + half, colledBubble.Position.Y + GameConstants.TILE_SIZE);
+                            if(getRightChild(colledBubble) == null)
+                            {
+                                currentBubble.Position = new Vector2(colledBubble.Position.X + half, colledBubble.Position.Y + GameConstants.TILE_SIZE);
+                            }
+                            else
+                            {   
+                                Console.WriteLine("RIGHT Child is not null adjust the position");
+                                currentBubble.Position = new Vector2(colledBubble.Position.X - half, colledBubble.Position.Y + GameConstants.TILE_SIZE);
+                            }
                         }
 
                     }
@@ -374,10 +437,6 @@ namespace bubble_puzzle.GameObject
             board[row, col] = currentBubble;
         }
 
-        // public bool checkGameOver()
-        // {
-
-        // }
         public void gameOver()
         {
 
