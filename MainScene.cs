@@ -53,7 +53,6 @@ public class MainScene : Game
 
         _maptext = LoadTextFile("Content/map.txt");
         Singleton.Instance.gameBoard.mapText = _maptext;
-
         //load all of buble texture into array
         for (int i = 0; i < Singleton.Instance.gameBoard.bubbleTexture.Length; i++)
         {
@@ -78,10 +77,14 @@ public class MainScene : Game
 
     protected override void Update(GameTime gameTime)
     {
-        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-            Exit();
+        
+        Singleton.Instance.CurrentKeyboard = Keyboard.GetState();
+        Singleton.Instance.CurrentMouse = Mouse.GetState();
 
         Singleton.Instance.gameBoard.Update(gameTime);
+
+        Singleton.Instance.PreviousKeyboard = Singleton.Instance.CurrentKeyboard;
+        Singleton.Instance.PreviousMouse = Singleton.Instance.CurrentMouse;
 
         base.Update(gameTime);
     }
