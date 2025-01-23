@@ -122,7 +122,7 @@ namespace bubble_puzzle.GameObject
                     }
                     break;
                 case GameState.BubbleMatch:
-                    checkMatch(currentBubble);
+                    checkMatch(currentBubble);    
                     currentGameState = GameState.BubbleReload;
                     break;
                 case GameState.BubbleFall:
@@ -418,7 +418,13 @@ namespace bubble_puzzle.GameObject
                 }
             }
 
-            Console.WriteLine("Match Count: " + matchBubbles.Count);
+            //Console.WriteLine("Match Count: " + matchBubbles.Count);
+
+            if(matchBubbles.Count < 3)
+            {
+                matchBubbles = null;
+                //Console.WriteLine("matchBubbles is null");
+            }
 
             return matchBubbles;
         }
