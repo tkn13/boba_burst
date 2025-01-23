@@ -59,7 +59,7 @@ namespace bubble_puzzle.GameObject
                 case GameState.BubbleReload:
 
                     currentBubble = new Bubble(null);
-                    currentBubble.isHighlighted = true;
+                    //currentBubble.isHighlighted = true;
                     currentBubble.Position = GameConstants.SHOOT_POSITION;
                     int bubleType = currentBubble.RandomBubbleType(0.5f, new BubbleType[] { BubbleType.Red, BubbleType.Green, BubbleType.Blue, BubbleType.Yellow });
                     currentBubble.setTexture(bubbleTexture[bubleType], highlightTexture);
@@ -400,11 +400,11 @@ namespace bubble_puzzle.GameObject
 
             stack.Push(currentBubble);
             visited.Add(currentBubble);
-            Console.WriteLine();
 
             while (stack.Count > 0)
             {
                 Bubble bubble = stack.Pop();
+                bubble.isHighlighted = true;
                 matchBubbles.Add(bubble);
 
                 // Check all neighboring bubbles
@@ -426,35 +426,45 @@ namespace bubble_puzzle.GameObject
         private List<Bubble> GetNeighbors(Bubble bubble)
         {
             List<Bubble> neighbors = new List<Bubble>();
+            int[][] positions;
 
-            int[][] positions = new int[][]
+            if (rowType[bubble.row])
             {
-                [-1,  0], // Top-left
-                [-1,  1], // Top-right
-                [0, -1], // Left
-                [0,  1], // Right
-                [1, -1], // Bottom-left
-                [1,  0]  // Bottom-right
-            };
+                // Even row
+                positions =
+                [
+                    [-1, -1], // Top-left
+                    [-1,  0], // Top-right
+                    [0, -1], // Left
+                    [0,  1], // Right
+                    [1, -1], // Bottom-left
+                    [1,  0]  // Bottom-right
+                ];
+            }
+            else
+            {
+                // Odd row
+                positions =
+                [
+                    [-1,  0], // Top-left
+                    [-1,  1], // Top-right
+                    [0, -1], // Left
+                    [0,  1], // Right
+                    [1,  0], // Bottom-left
+                    [1,  1]  // Bottom-right
+                ];
+            }
 
-            foreach (int[] position in positions)
+            // Add valid neighbors
+            foreach (var position in positions)
             {
                 int newRow = bubble.row + position[0];
                 int newCol = bubble.col + position[1];
 
-                if (newRow >= 0 && newRow < board.GetLength(0) && newCol >= 0 && newCol < board.GetLength(1))
+                if (newRow >= 0 && newRow < board.GetLength(0) &&
+                    newCol >= 0 && newCol < board.GetLength(1))
                 {
-                    // Check if there is a bubble in the specified position
-                    Bubble neighbor = null;
-                    foreach (Bubble b in bubbles)
-                    {
-                        if (b.row == newRow && b.col == newCol)
-                        {
-                            neighbor = b;
-                            break;
-                        }
-                    }
-
+                    Bubble neighbor = board[newRow, newCol];
                     if (neighbor != null)
                     {
                         neighbors.Add(neighbor);
