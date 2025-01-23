@@ -11,6 +11,7 @@ namespace bubbleTea
         public Score scoreObject;
         public int score;
         public MouseState PreviousMouse, CurrentMouse;
+        public KeyboardState PreviousKeyboard, CurrentKeyboard;
 
         //debug value
         public string MouseRotateValue = "0";
