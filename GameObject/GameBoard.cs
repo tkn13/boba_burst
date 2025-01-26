@@ -16,6 +16,7 @@ namespace bubble_puzzle.GameObject
         List<Bubble> bubbles;
         List<Bubble> matchedBubbles;
         List<Bubble> falledBubbles;
+        List<Bubble> killedBubbles;
         Bubble currentBubble;
         public AimAssistant aimAssistant;
         public Texture2D highlightTexture;
@@ -28,6 +29,7 @@ namespace bubble_puzzle.GameObject
             bubbles = new List<Bubble>();
             matchedBubbles = new List<Bubble>();
             falledBubbles = new List<Bubble>();
+            killedBubbles = new List<Bubble>();
             bubbleTexture = new Texture2D[6];
             aimAssistant = new AimAssistant(null);
 
@@ -56,6 +58,22 @@ namespace bubble_puzzle.GameObject
                 ceilingDrop();
                 _tick = 0;
             }
+
+            foreach (Bubble bubble in falledBubbles)
+            {
+                //check if the bubble Y is more than the board position then remove the bubble
+                if (bubble.Position.Y > GameConstants.GAME_WINDOW_HEIGHT)
+                {
+                    killedBubbles.Add(bubble);
+                }
+                bubble.Update(gameTime);
+            }
+
+            foreach (Bubble bubble in killedBubbles)
+            {
+                falledBubbles.Remove(bubble);
+            }
+            killedBubbles.Clear();
             
 
             switch (currentGameState)
@@ -142,9 +160,14 @@ namespace bubble_puzzle.GameObject
                     }    
                     break;
                 case GameState.BubbleFall:
-                    Console.WriteLine("FALL!");
-                    checkFall();
+                    falledBubbles = checkFall();
                     matchedBubbles.Clear();
+
+                    foreach (Bubble bubble in falledBubbles)
+                    {
+                        bubble.setFall(true);
+                    }
+
                     currentGameState = GameState.BubbleReload;
                     break;
             }
@@ -156,6 +179,11 @@ namespace bubble_puzzle.GameObject
             spriteBatch.Draw(texture, Position, null, Color.White, Rotation, Vector2.Zero, Scale, SpriteEffects.None, 0);
 
             foreach (Bubble bubble in bubbles)
+            {
+                bubble.Draw(spriteBatch);
+            }
+
+            foreach (Bubble bubble in falledBubbles)
             {
                 bubble.Draw(spriteBatch);
             }

@@ -114,5 +114,24 @@ namespace bubble_puzzle.GameObject
             }
             return false;
         }
+
+        public void setFall(bool isFall)
+        {   
+            //set current position move a bit by random
+
+            float randomX = GameConstants.random.Next(-GameConstants.TILE_SIZE / 2, GameConstants.TILE_SIZE / 2);
+            float randomY = GameConstants.random.Next(-GameConstants.TILE_SIZE / 2, GameConstants.TILE_SIZE / 2);
+
+            Position = new Vector2(Position.X + randomX, Position.Y + randomY);
+
+            if (isFall)
+            {
+                Velocity = new Vector2(0, 1);
+            }
+            else
+            {
+                Velocity = Vector2.Zero;
+            }
+        }
     }
 }
