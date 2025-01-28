@@ -756,7 +756,7 @@ namespace bubble_puzzle.GameObject
 
         public void calculateScore() 
         {
-            Singleton.Instance.score += falledBubbles.Count * 5;
+            Singleton.Instance.score += falledBubbles.Count * Math.Max(falledBubbles.Count - 2, 1) * 20;
         }
     }
 }
