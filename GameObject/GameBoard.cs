@@ -503,7 +503,10 @@ namespace bubble_puzzle.GameObject
                 // Check all neighboring bubbles
                 foreach (Bubble neighbor in GetNeighbors(bubble))
                 {
-                    if (!visited.Contains(neighbor) && neighbor.currentBubbleType == currentBubble.currentBubbleType)
+                    if (!visited.Contains(neighbor) && 
+                        (neighbor.currentBubbleType == currentBubble.currentBubbleType || 
+                        neighbor.currentBubbleType == BubbleType.Frozen || 
+                        neighbor.currentBubbleType == BubbleType.Bomb))
                     {
                         visited.Add(neighbor);
                         stack.Push(neighbor);
