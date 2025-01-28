@@ -13,7 +13,6 @@ namespace bubble_puzzle.GameObject
         public Bubble[,] board;
         public bool[] rowType;
         private float _tick;
-        public float tempTick;
         List<Bubble> bubbles;
         List<Bubble> matchedBubbles;
         List<Bubble> falledBubbles;
@@ -24,7 +23,11 @@ namespace bubble_puzzle.GameObject
         public Texture2D[] bubbleTexture;
         public string mapText;
         public Player player;
+
         public bool isFrozen;
+        public float frozenDuration;
+        public float frozenTick;
+
         public GameBoard(Texture2D texture) : base(texture)
         {
             board = new Bubble[13, 8];
@@ -37,6 +40,8 @@ namespace bubble_puzzle.GameObject
             aimAssistant = new AimAssistant(null);
             player = new Player(null);
             isFrozen = false;
+            frozenDuration = 3;
+            frozenTick = 0;
 
             _tick = 0;
         }
@@ -65,10 +70,10 @@ namespace bubble_puzzle.GameObject
             }
             else if (isFrozen)
             {
-                if (_tick > 3)
+                if (_tick > frozenTick + frozenDuration)
                 {
                     isFrozen = false;
-                    _tick = tempTick;
+                    _tick = frozenTick;
                 }
             }
 
@@ -178,6 +183,11 @@ namespace bubble_puzzle.GameObject
 
                     foreach (Bubble bubble in falledBubbles)
                     {
+                        if (bubble.currentBubbleType == BubbleType.Frozen)
+                        {
+                            frozenTick = _tick;
+                            isFrozen = true;
+                        }
                         bubble.setFall(true);
                     }
 
@@ -520,28 +530,7 @@ namespace bubble_puzzle.GameObject
                         neighbor.currentBubbleType == BubbleType.Bomb))
                     {
                         visited.Add(neighbor);
-                        stack.Push(neighbor);
-
-                        // Check if the bubble is a bomb
-                        if (neighbor.currentBubbleType == BubbleType.Bomb)
-                        {
-                            // Add all neighbors of the bomb into the matchBubbles list
-                            foreach (Bubble bombNeighbor in GetNeighbors(neighbor))
-                            {
-                                if (!visited.Contains(bombNeighbor))
-                                {
-                                    visited.Add(bombNeighbor);
-                                    matchBubbles.Add(bombNeighbor);
-                                }
-                            }
-                        }
-                        else if (neighbor.currentBubbleType == BubbleType.Frozen)
-                        {
-                            // Freeze the board
-                            isFrozen = true;
-                            tempTick = _tick;
-                            _tick = 0;
-                        }                        
+                        stack.Push(neighbor);                       
                     }
                 }
             }
