@@ -181,6 +181,7 @@ namespace bubble_puzzle.GameObject
                 case GameState.BubbleFall:
                     falledBubbles = checkFall();
                     matchedBubbles.Clear();
+                    calculateScore();
 
                     foreach (Bubble bubble in falledBubbles)
                     {
@@ -772,6 +773,11 @@ namespace bubble_puzzle.GameObject
                 }
             }
             group.Add(new Tuple<List<Point>, bool>(groupTemp, isConnectTop));
+        }
+
+        public void calculateScore() 
+        {
+            Singleton.Instance.score += falledBubbles.Count * Math.Max(falledBubbles.Count - 2, 1) * 20;
         }
     }
 }
