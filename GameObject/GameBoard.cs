@@ -23,6 +23,11 @@ namespace bubble_puzzle.GameObject
         public Texture2D[] bubbleTexture;
         public string mapText;
         public Player player;
+
+        public bool isFrozen;
+        public float frozenDuration;
+        public float frozenTick;
+
         public GameBoard(Texture2D texture) : base(texture)
         {
             board = new Bubble[13, 8];
@@ -34,6 +39,9 @@ namespace bubble_puzzle.GameObject
             bubbleTexture = new Texture2D[6];
             aimAssistant = new AimAssistant(null);
             player = new Player(null);
+            isFrozen = false;
+            frozenDuration = 3;
+            frozenTick = 0;
 
             _tick = 0;
         }
@@ -54,11 +62,19 @@ namespace bubble_puzzle.GameObject
         {
             _tick += (float)gameTime.ElapsedGameTime.Ticks / TimeSpan.TicksPerSecond;
             //rotate the aim assistant clockwise every 1 second 10 degree
-            if (_tick > 5)
+            if (_tick > 5 && !isFrozen)
             {
                 //aimAssistant.Rotation += MathHelper.ToRadians(10);
                 ceilingDrop();
                 _tick = 0;
+            }
+            else if (isFrozen)
+            {
+                if (_tick > frozenTick + frozenDuration)
+                {
+                    isFrozen = false;
+                    _tick = frozenTick;
+                }
             }
 
             foreach (Bubble bubble in falledBubbles)
@@ -167,6 +183,11 @@ namespace bubble_puzzle.GameObject
 
                     foreach (Bubble bubble in falledBubbles)
                     {
+                        if (bubble.currentBubbleType == BubbleType.Frozen)
+                        {
+                            frozenTick = _tick;
+                            isFrozen = true;
+                        }
                         bubble.setFall(true);
                     }
 
@@ -509,7 +530,7 @@ namespace bubble_puzzle.GameObject
                         neighbor.currentBubbleType == BubbleType.Bomb))
                     {
                         visited.Add(neighbor);
-                        stack.Push(neighbor);
+                        stack.Push(neighbor);                       
                     }
                 }
             }
