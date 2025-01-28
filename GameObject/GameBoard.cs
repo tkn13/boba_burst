@@ -506,12 +506,11 @@ namespace bubble_puzzle.GameObject
 
         }
 
+        // Random the type of bubble
         public BubbleType RandomBubbleType(List<BubbleType> availableTypes, List<BubbleType> biasTypes)
         {
             BubbleType resultType;
             List<BubbleType> weightedTypes = new List<BubbleType>();
-
-            Random random = new Random();
 
             // Add normal weight for each available type
             foreach (var type in availableTypes)
@@ -519,9 +518,10 @@ namespace bubble_puzzle.GameObject
                 weightedTypes.Add(type);
             }
 
+            // Add normal weight again except special type
             foreach (var type in availableTypes)
             {
-                if (type == BubbleType.Bomb || type == BubbleType.Frozen)
+                if (type != BubbleType.Bomb || type != BubbleType.Frozen)
                 {
                     weightedTypes.Add(type);
                 }
@@ -537,8 +537,9 @@ namespace bubble_puzzle.GameObject
                 }
             }
 
-            int randomIndex = random.Next(weightedTypes.Count);
-            resultType = weightedTypes[randomIndex];
+            // Random type from the weighted list
+            int randomIndex = GameConstants.random.Next(weightedTypes.Count);
+            resultType = weightedTypes[randomIndex]; 
 
             return resultType;
         }
@@ -572,12 +573,9 @@ namespace bubble_puzzle.GameObject
                 }
             }
 
-            //Console.WriteLine("Match Count: " + matchBubbles.Count);
-
             if(matchBubbles.Count < 3)
             {
                 matchBubbles = null;
-                //Console.WriteLine("matchBubbles is null");
             }
 
             return matchBubbles;
