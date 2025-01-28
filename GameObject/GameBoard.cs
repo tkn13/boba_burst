@@ -13,6 +13,7 @@ namespace bubble_puzzle.GameObject
         public Bubble[,] board;
         public bool[] rowType;
         private float _tick;
+        public float tempTick;
         List<Bubble> bubbles;
         List<Bubble> matchedBubbles;
         List<Bubble> falledBubbles;
@@ -23,6 +24,7 @@ namespace bubble_puzzle.GameObject
         public Texture2D[] bubbleTexture;
         public string mapText;
         public Player player;
+        public bool isFrozen;
         public GameBoard(Texture2D texture) : base(texture)
         {
             board = new Bubble[13, 8];
@@ -34,6 +36,7 @@ namespace bubble_puzzle.GameObject
             bubbleTexture = new Texture2D[6];
             aimAssistant = new AimAssistant(null);
             player = new Player(null);
+            isFrozen = false;
 
             _tick = 0;
         }
@@ -54,11 +57,19 @@ namespace bubble_puzzle.GameObject
         {
             _tick += (float)gameTime.ElapsedGameTime.Ticks / TimeSpan.TicksPerSecond;
             //rotate the aim assistant clockwise every 1 second 10 degree
-            if (_tick > 5)
+            if (_tick > 5 && !isFrozen)
             {
                 //aimAssistant.Rotation += MathHelper.ToRadians(10);
                 ceilingDrop();
                 _tick = 0;
+            }
+            else if (isFrozen)
+            {
+                if (_tick > 3)
+                {
+                    isFrozen = false;
+                    _tick = tempTick;
+                }
             }
 
             foreach (Bubble bubble in falledBubbles)
@@ -510,6 +521,27 @@ namespace bubble_puzzle.GameObject
                     {
                         visited.Add(neighbor);
                         stack.Push(neighbor);
+
+                        // Check if the bubble is a bomb
+                        if (neighbor.currentBubbleType == BubbleType.Bomb)
+                        {
+                            // Add all neighbors of the bomb into the matchBubbles list
+                            foreach (Bubble bombNeighbor in GetNeighbors(neighbor))
+                            {
+                                if (!visited.Contains(bombNeighbor))
+                                {
+                                    visited.Add(bombNeighbor);
+                                    matchBubbles.Add(bombNeighbor);
+                                }
+                            }
+                        }
+                        else if (neighbor.currentBubbleType == BubbleType.Frozen)
+                        {
+                            // Freeze the board
+                            isFrozen = true;
+                            tempTick = _tick;
+                            _tick = 0;
+                        }                        
                     }
                 }
             }
