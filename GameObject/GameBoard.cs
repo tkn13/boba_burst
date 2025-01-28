@@ -499,12 +499,33 @@ namespace bubble_puzzle.GameObject
 
         public void gameOver()
         {
-
+            for (int j = 0; j < board.GetLength(1); j++)
+            {
+                if (board[GameConstants.GAME_OVER_LINE, j] != null)
+                {
+                    Console.WriteLine("GAME OVER! Please press SPACEBAR to try again");
+                    //Reset();
+                }
+            }
         }
 
         //drop the bubble from the top
         public void ceilingDrop()
         {
+            for (int i = board.GetLength(0) - 1; i > 0; i--)
+            {
+                for (int j = 0; j < board.GetLength(1); j++)
+                {
+                    board[i, j] = board[i - 1, j];
+                    board[i - 1, j] = null;
+                    if (board[i, j] != null)
+                    {
+                        board[i, j].Position.Y += 64;
+                        board[i, j].row += 1;
+                    }
+
+                }
+            }
 
         }
 
