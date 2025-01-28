@@ -12,6 +12,7 @@ namespace bubble_puzzle.GameObject
         public int row, col;
         public Bubble(Texture2D texture) : base(texture)
         {
+            
         }
 
         public override void Update(GameTime gameTime)
@@ -64,12 +65,47 @@ namespace bubble_puzzle.GameObject
 
         //Random Bubble Type Function with weight 
         //base from it's child bubbles there have a chance to spawn with the same type
-        public int RandomBubbleType(float weight, BubbleType[] type)
-        {
-            currentBubbleType = type[GameConstants.random.Next(0, type.Length)];
+        // public int RandomBubbleType(float weight, BubbleType[] type)
+        // {
+        //     currentBubbleType = type[GameConstants.random.Next(0, type.Length)];
 
-            return (int)currentBubbleType;
+        //     return (int)currentBubbleType;
+        // }
+
+        public BubbleType RandomBubbleType(float weight, BubbleType[] availableTypes, BubbleType[] referenceColors)
+        {
+            Dictionary<BubbleType, double> probabilityMap = new Dictionary<BubbleType, double>();
+
+            foreach (BubbleType type in availableTypes)
+            {
+                probabilityMap[type] = (1 - weight) / (availableTypes.Length - referenceColors.Length);
+            }
+
+            // add weight
+            foreach (BubbleType refColor in referenceColors)
+            {
+                if (probabilityMap.ContainsKey(refColor))
+                {
+                    probabilityMap[refColor] += weight / referenceColors.Length;
+                }
+            }
+
+            // random weight
+            double randomValue = GameConstants.random.NextDouble();
+            double cumulativeProbability = 0.0;
+
+            foreach (var pair in probabilityMap)
+            {
+                cumulativeProbability += pair.Value;
+                if (randomValue < cumulativeProbability)
+                {
+                    return pair.Key;
+                }
+            }
+
+            return availableTypes[GameConstants.random.Next(availableTypes.Length)];
         }
+
 
         public void setTexture(Texture2D texture, Texture2D highlightTexture)
         {

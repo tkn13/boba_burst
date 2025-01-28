@@ -221,7 +221,7 @@ namespace bubble_puzzle.GameObject
                         bubbles.Add(bubble);
 
                         //set the position of the bubble base on the row type
-                        if(rowType[i])
+                        if (rowType[i])
                         {
                             bubble.Position = new Vector2(GameConstants.BOARD_POSITION.X + (GameConstants.TILE_SIZE * j), GameConstants.BOARD_POSITION.Y + (GameConstants.TILE_SIZE * i));
                         }
@@ -380,13 +380,46 @@ namespace bubble_puzzle.GameObject
         // }
         public void gameOver()
         {
+            int gameOverRow = 11;
+            for (int j = 0; j < board.GetLength(1); j++) 
+            {
+                if (board[gameOverRow, j] != null)
+                {
+                    Reset();
+                }
+            }
 
         }
         //drop the bubble from the top
         public void ceilingDrop()
         {
+            for (int i = board.GetLength(0) - 1; i > 0; i--)
+            {
+                for (int j = 0; j < board.GetLength(1); j++)
+                {
+                    board[i, j] = board[i - 1, j];
+                }
+            }
 
+            for (int j = 0; j < board.GetLength(1); j++)
+            {
+                Bubble newBubble = new Bubble();
+
+                BubbleType[] referenceColors = GetReferenceColors(j);
+                BubbleType chosenColor = newBubble.RandomBubbleType(0.7f, (BubbleType[])Enum.GetValues(typeof(BubbleType)), referenceColors);
+
+                board[0, j] = new Bubble(chosenColor);
+            }
         }
+        private BubbleType[] GetReferenceColors(int col)
+        {
+            List<BubbleType> referenceColors = new List<BubbleType>();
+            int[] checkCols = { col, col + 1 };
+
+
+            return referenceColors.ToArray();
+        }
+
 
         //check the current placement of the bubble
         public List<Bubble> checkMatch(Bubble currentBubble)
