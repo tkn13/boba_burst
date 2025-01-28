@@ -16,11 +16,13 @@ namespace bubble_puzzle.GameObject
         List<Bubble> bubbles;
         List<Bubble> matchedBubbles;
         List<Bubble> falledBubbles;
+        List<Bubble> killedBubbles;
         Bubble currentBubble;
         public AimAssistant aimAssistant;
         public Texture2D highlightTexture;
         public Texture2D[] bubbleTexture;
         public string mapText;
+        public Player player;
         public GameBoard(Texture2D texture) : base(texture)
         {
             board = new Bubble[13, 8];
@@ -28,8 +30,10 @@ namespace bubble_puzzle.GameObject
             bubbles = new List<Bubble>();
             matchedBubbles = new List<Bubble>();
             falledBubbles = new List<Bubble>();
+            killedBubbles = new List<Bubble>();
             bubbleTexture = new Texture2D[6];
             aimAssistant = new AimAssistant(null);
+            player = new Player(null);
 
             _tick = 0;
         }
@@ -56,6 +60,22 @@ namespace bubble_puzzle.GameObject
                 ceilingDrop();
                 _tick = 0;
             }
+
+            foreach (Bubble bubble in falledBubbles)
+            {
+                //check if the bubble Y is more than the board position then remove the bubble
+                if (bubble.Position.Y > GameConstants.GAME_WINDOW_HEIGHT)
+                {
+                    killedBubbles.Add(bubble);
+                }
+                bubble.Update(gameTime);
+            }
+
+            foreach (Bubble bubble in killedBubbles)
+            {
+                falledBubbles.Remove(bubble);
+            }
+            killedBubbles.Clear();
             
 
             switch (currentGameState)
@@ -142,9 +162,14 @@ namespace bubble_puzzle.GameObject
                     }    
                     break;
                 case GameState.BubbleFall:
-                    Console.WriteLine("FALL!");
-                    checkFall();
+                    falledBubbles = checkFall();
                     matchedBubbles.Clear();
+
+                    foreach (Bubble bubble in falledBubbles)
+                    {
+                        bubble.setFall(true);
+                    }
+
                     currentGameState = GameState.BubbleReload;
                     break;
             }
@@ -160,23 +185,17 @@ namespace bubble_puzzle.GameObject
                 bubble.Draw(spriteBatch);
             }
 
+            foreach (Bubble bubble in falledBubbles)
+            {
+                bubble.Draw(spriteBatch);
+            }
+
             switch (currentGameState)
             {
                 case GameState.BubbleReload:
                     break;
                 case GameState.Aim:
                     aimAssistant.Draw(spriteBatch);
-                    // Draw a red line from the pivot point to the mouse position
-                    Texture2D lineTexture = new Texture2D(spriteBatch.GraphicsDevice, 1, 1);
-                    lineTexture.SetData(new[] { Color.Red });
-
-                    Vector2 pivot = GameConstants.SHOOT_PIVOT_POSITION;
-                    Vector2 mousePosition = Singleton.Instance.CurrentMouse.Position.ToVector2();
-                    Vector2 direction = mousePosition - pivot;
-                    float angle = (float)Math.Atan2(direction.Y, direction.X);
-                    float length = direction.Length();
-
-                    spriteBatch.Draw(lineTexture, pivot, null, Color.Red, angle, Vector2.Zero, new Vector2(length, 1), SpriteEffects.None, 0);
                     break;
                 case GameState.Shoot:
 
@@ -190,6 +209,8 @@ namespace bubble_puzzle.GameObject
                     break;
             }
 
+            
+            player.Draw(spriteBatch);
             currentBubble.Draw(spriteBatch);
 
             base.Draw(spriteBatch);
@@ -477,7 +498,6 @@ namespace bubble_puzzle.GameObject
             while (stack.Count > 0)
             {
                 Bubble bubble = stack.Pop();
-                bubble.isHighlighted = true;
                 matchBubbles.Add(bubble);
 
                 // Check all neighboring bubbles

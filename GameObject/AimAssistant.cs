@@ -9,6 +9,7 @@ namespace bubble_puzzle.GameObject
         public AimAssistant(Texture2D texture) : base(texture)
         {
             Position = GameConstants.SHOOT_POSITION;
+            Position.Y += 256;
         }
 
         public override void Update(GameTime gameTime)
@@ -18,9 +19,9 @@ namespace bubble_puzzle.GameObject
 
         public override void Draw(SpriteBatch spriteBatch)
         {   
-        
-            Vector2 origin = new Vector2(texture.Width / 2, 256);
-            spriteBatch.Draw(texture, GameConstants.SHOOT_PIVOT_POSITION, null, Color.White, Rotation, origin, Scale, SpriteEffects.None, 0);
+            Vector2 temp = GameConstants.SHOOT_PIVOT_POSITION;
+            Vector2 origin = new Vector2(texture.Width / 2, 192);
+            spriteBatch.Draw(texture, temp, null, Color.White, Rotation, origin, Scale, SpriteEffects.None, 0);
             
             base.Draw(spriteBatch);
         }
