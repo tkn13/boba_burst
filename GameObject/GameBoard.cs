@@ -54,7 +54,7 @@ namespace bubble_puzzle.GameObject
         {
             _tick += (float)gameTime.ElapsedGameTime.Ticks / TimeSpan.TicksPerSecond;
             //rotate the aim assistant clockwise every 1 second 10 degree
-            if (_tick > 5)
+            if (_tick > 20)
             {
                 //aimAssistant.Rotation += MathHelper.ToRadians(10);
                 ceilingDrop();
@@ -76,7 +76,7 @@ namespace bubble_puzzle.GameObject
                 falledBubbles.Remove(bubble);
             }
             killedBubbles.Clear();
-            
+
 
             switch (currentGameState)
             {
@@ -153,13 +153,14 @@ namespace bubble_puzzle.GameObject
                     break;
                 case GameState.BubbleMatch:
                     matchedBubbles = checkMatch(currentBubble);
-                    if(matchedBubbles == null)
+                    if (matchedBubbles == null)
                     {
                         currentGameState = GameState.BubbleReload;
-                    }else
+                    }
+                    else
                     {
                         currentGameState = GameState.BubbleFall;
-                    }    
+                    }
                     break;
                 case GameState.BubbleFall:
                     falledBubbles = checkFall();
@@ -209,7 +210,7 @@ namespace bubble_puzzle.GameObject
                     break;
             }
 
-            
+
             player.Draw(spriteBatch);
             currentBubble.Draw(spriteBatch);
 
@@ -261,7 +262,7 @@ namespace bubble_puzzle.GameObject
                         bubbles.Add(bubble);
 
                         //set the position of the bubble base on the row type
-                        if(rowType[i])
+                        if (rowType[i])
                         {
                             bubble.Position = new Vector2(GameConstants.BOARD_POSITION.X + (GameConstants.TILE_SIZE * j), GameConstants.BOARD_POSITION.Y + (GameConstants.TILE_SIZE * i));
                         }
@@ -283,7 +284,7 @@ namespace bubble_puzzle.GameObject
 
         //find the right position for the bubble to be placed
         public void placeBubble(Bubble currentBubble, Bubble colledBubble)
-        {   
+        {
 
             Bubble getLeftChild(Bubble bubble)
             {
@@ -366,7 +367,7 @@ namespace bubble_puzzle.GameObject
             }
 
             else
-            {   
+            {
                 //First Element of this list is the closest bubble to the current bubble then we will use this as a main reference when placing the bubble is not occupied
                 Vector2 currentBubbleCenter = new Vector2(currentBubble.Position.X + GameConstants.TILE_SIZE / 2, currentBubble.Position.Y + GameConstants.TILE_SIZE / 2);
                 Vector2 colledBubbleCenter = new Vector2(colledBubble.Position.X + GameConstants.TILE_SIZE / 2, colledBubble.Position.Y + GameConstants.TILE_SIZE / 2);
@@ -403,12 +404,12 @@ namespace bubble_puzzle.GameObject
                             if current bubble colled with the second element at the right then place the current bubble at the bottom right at main reference
                             if current buuble coolled with the second element at the left then place the current bubble at the top left at main reference
                             */
-                            if(getLeftChild(colledBubble) == null)
+                            if (getLeftChild(colledBubble) == null)
                             {
                                 currentBubble.Position = new Vector2(colledBubble.Position.X - half, colledBubble.Position.Y + GameConstants.TILE_SIZE);
                             }
                             else
-                            {   
+                            {
                                 Console.WriteLine("LEFT Child is not null adjust the position");
                                 currentBubble.Position = new Vector2(colledBubble.Position.X + half, colledBubble.Position.Y + GameConstants.TILE_SIZE);
                             }
@@ -435,12 +436,12 @@ namespace bubble_puzzle.GameObject
                         }
                         else
                         {
-                            if(getRightChild(colledBubble) == null)
+                            if (getRightChild(colledBubble) == null)
                             {
                                 currentBubble.Position = new Vector2(colledBubble.Position.X + half, colledBubble.Position.Y + GameConstants.TILE_SIZE);
                             }
                             else
-                            {   
+                            {
                                 Console.WriteLine("RIGHT Child is not null adjust the position");
                                 currentBubble.Position = new Vector2(colledBubble.Position.X - half, colledBubble.Position.Y + GameConstants.TILE_SIZE);
                             }
@@ -476,14 +477,72 @@ namespace bubble_puzzle.GameObject
 
         public void gameOver()
         {
+            int gameOverRow = 11;
+            for (int j = 0; j < board.GetLength(1); j++)
+            {
+                if (board[gameOverRow, j] != null)
+                {
+                    Console.WriteLine("GAME OVER! Please press SPACEBAR to try again");
+                    //Reset();
+                }
+            }
 
         }
 
         //drop the bubble from the top
         public void ceilingDrop()
         {
+            for (int i = board.GetLength(0) - 1; i > 0; i--)
+            {
+                for (int j = 0; j < board.GetLength(1); j++)
+                {
+                    board[i, j] = board[i - 1, j];
+                    board[i - 1, j] = null;
+                    if (board[i, j] != null)
+                    {
+                        board[i, j].Position.Y += 64;
+                        board[i, j].row += 1;
+                    }
+
+                }
+            }
 
         }
+
+        public BubbleType RandomBubbleType(float weight, BubbleType[] availableTypes, BubbleType[] referenceColors)
+        {
+            Dictionary<BubbleType, double> probabilityMap = new Dictionary<BubbleType, double>();
+
+            foreach (BubbleType type in availableTypes)
+            {
+                probabilityMap[type] = (1 - weight) / (availableTypes.Length - referenceColors.Length);
+            }
+
+            // add weight
+            foreach (BubbleType refColor in referenceColors)
+            {
+                if (probabilityMap.ContainsKey(refColor))
+                {
+                    probabilityMap[refColor] += weight / referenceColors.Length;
+                }
+            }
+
+            // random weight
+            double randomValue = GameConstants.random.NextDouble();
+            double cumulativeProbability = 0.0;
+
+            foreach (var pair in probabilityMap)
+            {
+                cumulativeProbability += pair.Value;
+                if (randomValue < cumulativeProbability)
+                {
+                    return pair.Key;
+                }
+            }
+
+            return availableTypes[GameConstants.random.Next(availableTypes.Length)];
+        }
+
 
         //check the current placement of the bubble
         public List<Bubble> checkMatch(Bubble currentBubble)
@@ -503,9 +562,9 @@ namespace bubble_puzzle.GameObject
                 // Check all neighboring bubbles
                 foreach (Bubble neighbor in GetNeighbors(bubble))
                 {
-                    if (!visited.Contains(neighbor) && 
-                        (neighbor.currentBubbleType == currentBubble.currentBubbleType || 
-                        neighbor.currentBubbleType == BubbleType.Frozen || 
+                    if (!visited.Contains(neighbor) &&
+                        (neighbor.currentBubbleType == currentBubble.currentBubbleType ||
+                        neighbor.currentBubbleType == BubbleType.Frozen ||
                         neighbor.currentBubbleType == BubbleType.Bomb))
                     {
                         visited.Add(neighbor);
@@ -516,7 +575,7 @@ namespace bubble_puzzle.GameObject
 
             //Console.WriteLine("Match Count: " + matchBubbles.Count);
 
-            if(matchBubbles.Count < 3)
+            if (matchBubbles.Count < 3)
             {
                 matchBubbles = null;
                 //Console.WriteLine("matchBubbles is null");
@@ -618,11 +677,12 @@ namespace bubble_puzzle.GameObject
                 }
             }
 
-            foreach(Tuple<List<Point>, bool> curGroup in group)
+            foreach (Tuple<List<Point>, bool> curGroup in group)
             {
-                if(!curGroup.Item2) {
-                    foreach(Point i in curGroup.Item1)
-                    {   
+                if (!curGroup.Item2)
+                {
+                    foreach (Point i in curGroup.Item1)
+                    {
                         Bubble removedBubble = board[i.X, i.Y];
                         fallBubble.Add(removedBubble);
                         bubbles.Remove(removedBubble);
