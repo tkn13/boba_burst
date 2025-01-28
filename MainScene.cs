@@ -15,6 +15,8 @@ public class MainScene : Game
     private SpriteFont _font;
     private Texture2D _backgroudTexture;
     private Texture2D _gameBoardTexture;
+    private Texture2D _playerBaseTexture;
+    private Texture2D _playerTubeTexture;
     private string _maptext;
 
     public MainScene()
@@ -40,8 +42,8 @@ public class MainScene : Game
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-        _backgroudTexture = Content.Load<Texture2D>("image/game_asset_05");
-        _gameBoardTexture = Content.Load<Texture2D>("image/game_asset_04");
+        _backgroudTexture = Content.Load<Texture2D>("image/game_background");
+        _gameBoardTexture = Content.Load<Texture2D>("image/game_board");
         Singleton.Instance.gameBoard.texture = _gameBoardTexture;
 
         //create highlight texture
@@ -56,23 +58,30 @@ public class MainScene : Game
         //load all of buble texture into array
         for (int i = 0; i < Singleton.Instance.gameBoard.bubbleTexture.Length; i++)
         {
-            Singleton.Instance.gameBoard.bubbleTexture[i] = Content.Load<Texture2D>("image/eggs/bubble0" + i);
+            Singleton.Instance.gameBoard.bubbleTexture[i] = Content.Load<Texture2D>("image/bubbles/bubble0" + i);
         }
         Singleton.Instance.gameBoard.Reset();
         //load all of score texture into array
         for (int i = 0; i < Singleton.Instance.scoreObject.scoreTexture.Length; i++)
         {
-            Singleton.Instance.scoreObject.scoreTexture[i] = Content.Load<Texture2D>("image/game_asset_03");
+            Singleton.Instance.scoreObject.scoreTexture[i] = Content.Load<Texture2D>("image/number/num" + i);
         }
 
         _font = Content.Load<SpriteFont>("GameFont");
 
-        //create aim assistant texture
-        Texture2D _react = new Texture2D(GraphicsDevice, 64, 64*5);
-        Color[] data = new Color[64 * 64 * 5];
-        for (int i = 0; i < data.Length; ++i) data[i] = Color.White;
-        _react.SetData(data);
-        Singleton.Instance.gameBoard.aimAssistant.texture = _react;
+        //load player texture
+        _playerBaseTexture = Content.Load<Texture2D>("image/player/hand");
+        Singleton.Instance.gameBoard.player.texture = _playerBaseTexture;
+
+        _playerTubeTexture = Content.Load<Texture2D>("image/player/tube");
+
+
+        // //create aim assistant texture
+        // Texture2D _react = new Texture2D(GraphicsDevice, 64, 64*5);
+        // Color[] data = new Color[64 * 64 * 5];
+        // for (int i = 0; i < data.Length; ++i) data[i] = Color.White;
+        // _react.SetData(data);
+        Singleton.Instance.gameBoard.aimAssistant.texture = _playerTubeTexture;
     }
 
     protected override void Update(GameTime gameTime)

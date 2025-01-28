@@ -22,6 +22,7 @@ namespace bubble_puzzle.GameObject
         public Texture2D highlightTexture;
         public Texture2D[] bubbleTexture;
         public string mapText;
+        public Player player;
         public GameBoard(Texture2D texture) : base(texture)
         {
             board = new Bubble[13, 8];
@@ -32,6 +33,7 @@ namespace bubble_puzzle.GameObject
             killedBubbles = new List<Bubble>();
             bubbleTexture = new Texture2D[6];
             aimAssistant = new AimAssistant(null);
+            player = new Player(null);
 
             _tick = 0;
         }
@@ -194,17 +196,6 @@ namespace bubble_puzzle.GameObject
                     break;
                 case GameState.Aim:
                     aimAssistant.Draw(spriteBatch);
-                    // Draw a red line from the pivot point to the mouse position
-                    Texture2D lineTexture = new Texture2D(spriteBatch.GraphicsDevice, 1, 1);
-                    lineTexture.SetData(new[] { Color.Red });
-
-                    Vector2 pivot = GameConstants.SHOOT_PIVOT_POSITION;
-                    Vector2 mousePosition = Singleton.Instance.CurrentMouse.Position.ToVector2();
-                    Vector2 direction = mousePosition - pivot;
-                    float angle = (float)Math.Atan2(direction.Y, direction.X);
-                    float length = direction.Length();
-
-                    spriteBatch.Draw(lineTexture, pivot, null, Color.Red, angle, Vector2.Zero, new Vector2(length, 1), SpriteEffects.None, 0);
                     break;
                 case GameState.Shoot:
 
@@ -218,6 +209,8 @@ namespace bubble_puzzle.GameObject
                     break;
             }
 
+            
+            player.Draw(spriteBatch);
             currentBubble.Draw(spriteBatch);
 
             base.Draw(spriteBatch);
@@ -505,7 +498,6 @@ namespace bubble_puzzle.GameObject
             while (stack.Count > 0)
             {
                 Bubble bubble = stack.Pop();
-                bubble.isHighlighted = true;
                 matchBubbles.Add(bubble);
 
                 // Check all neighboring bubbles
