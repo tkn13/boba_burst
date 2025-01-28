@@ -506,6 +506,43 @@ namespace bubble_puzzle.GameObject
 
         }
 
+        public BubbleType RandomBubbleType(List<BubbleType> availableTypes, List<BubbleType> biasTypes)
+        {
+            BubbleType resultType;
+            List<BubbleType> weightedTypes = new List<BubbleType>();
+
+            Random random = new Random();
+
+            // Add normal weight for each available type
+            foreach (var type in availableTypes)
+            {
+                weightedTypes.Add(type);
+            }
+
+            foreach (var type in availableTypes)
+            {
+                if (type == BubbleType.Bomb || type == BubbleType.Frozen)
+                {
+                    weightedTypes.Add(type);
+                }
+            }
+
+            // Add extra weight for each bias type
+            foreach (var type in biasTypes)
+            {
+                if (availableTypes.Contains(type))
+                {
+                    weightedTypes.Add(type);
+                    weightedTypes.Add(type);
+                }
+            }
+
+            int randomIndex = random.Next(weightedTypes.Count);
+            resultType = weightedTypes[randomIndex];
+
+            return resultType;
+        }
+
         //check the current placement of the bubble
         public List<Bubble> checkMatch(Bubble currentBubble)
         {
