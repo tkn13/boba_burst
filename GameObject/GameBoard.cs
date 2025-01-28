@@ -23,6 +23,11 @@ namespace bubble_puzzle.GameObject
         public Texture2D[] bubbleTexture;
         public string mapText;
         public Player player;
+
+        public bool isFrozen;
+        public float frozenDuration;
+        public float frozenTick;
+
         public GameBoard(Texture2D texture) : base(texture)
         {
             board = new Bubble[13, 8];
@@ -34,6 +39,9 @@ namespace bubble_puzzle.GameObject
             bubbleTexture = new Texture2D[6];
             aimAssistant = new AimAssistant(null);
             player = new Player(null);
+            isFrozen = false;
+            frozenDuration = 3;
+            frozenTick = 0;
 
             _tick = 0;
         }
@@ -54,11 +62,19 @@ namespace bubble_puzzle.GameObject
         {
             _tick += (float)gameTime.ElapsedGameTime.Ticks / TimeSpan.TicksPerSecond;
             //rotate the aim assistant clockwise every 1 second 10 degree
-            if (_tick > 5)
+            if (_tick > 5 && !isFrozen)
             {
                 //aimAssistant.Rotation += MathHelper.ToRadians(10);
                 ceilingDrop();
                 _tick = 0;
+            }
+            else if (isFrozen)
+            {
+                if (_tick > frozenTick + frozenDuration)
+                {
+                    isFrozen = false;
+                    _tick = frozenTick;
+                }
             }
 
             foreach (Bubble bubble in falledBubbles)
@@ -76,7 +92,7 @@ namespace bubble_puzzle.GameObject
                 falledBubbles.Remove(bubble);
             }
             killedBubbles.Clear();
-            
+
 
             switch (currentGameState)
             {
@@ -153,13 +169,14 @@ namespace bubble_puzzle.GameObject
                     break;
                 case GameState.BubbleMatch:
                     matchedBubbles = checkMatch(currentBubble);
-                    if(matchedBubbles == null)
+                    if (matchedBubbles == null)
                     {
                         currentGameState = GameState.BubbleReload;
-                    }else
+                    }
+                    else
                     {
                         currentGameState = GameState.BubbleFall;
-                    }    
+                    }
                     break;
                 case GameState.BubbleFall:
                     falledBubbles = checkFall();
@@ -168,6 +185,11 @@ namespace bubble_puzzle.GameObject
 
                     foreach (Bubble bubble in falledBubbles)
                     {
+                        if (bubble.currentBubbleType == BubbleType.Frozen)
+                        {
+                            frozenTick = _tick;
+                            isFrozen = true;
+                        }
                         bubble.setFall(true);
                     }
 
@@ -210,7 +232,7 @@ namespace bubble_puzzle.GameObject
                     break;
             }
 
-            
+
             player.Draw(spriteBatch);
             currentBubble.Draw(spriteBatch);
 
@@ -262,7 +284,7 @@ namespace bubble_puzzle.GameObject
                         bubbles.Add(bubble);
 
                         //set the position of the bubble base on the row type
-                        if(rowType[i])
+                        if (rowType[i])
                         {
                             bubble.Position = new Vector2(GameConstants.BOARD_POSITION.X + (GameConstants.TILE_SIZE * j), GameConstants.BOARD_POSITION.Y + (GameConstants.TILE_SIZE * i));
                         }
@@ -284,7 +306,7 @@ namespace bubble_puzzle.GameObject
 
         //find the right position for the bubble to be placed
         public void placeBubble(Bubble currentBubble, Bubble colledBubble)
-        {   
+        {
 
             Bubble getLeftChild(Bubble bubble)
             {
@@ -367,7 +389,7 @@ namespace bubble_puzzle.GameObject
             }
 
             else
-            {   
+            {
                 //First Element of this list is the closest bubble to the current bubble then we will use this as a main reference when placing the bubble is not occupied
                 Vector2 currentBubbleCenter = new Vector2(currentBubble.Position.X + GameConstants.TILE_SIZE / 2, currentBubble.Position.Y + GameConstants.TILE_SIZE / 2);
                 Vector2 colledBubbleCenter = new Vector2(colledBubble.Position.X + GameConstants.TILE_SIZE / 2, colledBubble.Position.Y + GameConstants.TILE_SIZE / 2);
@@ -404,12 +426,12 @@ namespace bubble_puzzle.GameObject
                             if current bubble colled with the second element at the right then place the current bubble at the bottom right at main reference
                             if current buuble coolled with the second element at the left then place the current bubble at the top left at main reference
                             */
-                            if(getLeftChild(colledBubble) == null)
+                            if (getLeftChild(colledBubble) == null)
                             {
                                 currentBubble.Position = new Vector2(colledBubble.Position.X - half, colledBubble.Position.Y + GameConstants.TILE_SIZE);
                             }
                             else
-                            {   
+                            {
                                 Console.WriteLine("LEFT Child is not null adjust the position");
                                 currentBubble.Position = new Vector2(colledBubble.Position.X + half, colledBubble.Position.Y + GameConstants.TILE_SIZE);
                             }
@@ -436,12 +458,12 @@ namespace bubble_puzzle.GameObject
                         }
                         else
                         {
-                            if(getRightChild(colledBubble) == null)
+                            if (getRightChild(colledBubble) == null)
                             {
                                 currentBubble.Position = new Vector2(colledBubble.Position.X + half, colledBubble.Position.Y + GameConstants.TILE_SIZE);
                             }
                             else
-                            {   
+                            {
                                 Console.WriteLine("RIGHT Child is not null adjust the position");
                                 currentBubble.Position = new Vector2(colledBubble.Position.X - half, colledBubble.Position.Y + GameConstants.TILE_SIZE);
                             }
@@ -504,20 +526,20 @@ namespace bubble_puzzle.GameObject
                 // Check all neighboring bubbles
                 foreach (Bubble neighbor in GetNeighbors(bubble))
                 {
-                    if (!visited.Contains(neighbor) && 
-                        (neighbor.currentBubbleType == currentBubble.currentBubbleType || 
-                        neighbor.currentBubbleType == BubbleType.Frozen || 
+                    if (!visited.Contains(neighbor) &&
+                        (neighbor.currentBubbleType == currentBubble.currentBubbleType ||
+                        neighbor.currentBubbleType == BubbleType.Frozen ||
                         neighbor.currentBubbleType == BubbleType.Bomb))
                     {
                         visited.Add(neighbor);
-                        stack.Push(neighbor);
+                        stack.Push(neighbor);                       
                     }
                 }
             }
 
             //Console.WriteLine("Match Count: " + matchBubbles.Count);
 
-            if(matchBubbles.Count < 3)
+            if (matchBubbles.Count < 3)
             {
                 matchBubbles = null;
                 //Console.WriteLine("matchBubbles is null");
@@ -583,8 +605,8 @@ namespace bubble_puzzle.GameObject
             List<Bubble> fallBubble = new List<Bubble>();
             foreach (Bubble curBubble in matchedBubbles)
             {
-                fallBubble.Add(board[curBubble.row, curBubble.col]);
-                bubbles.Remove(board[curBubble.row, curBubble.col]);
+                fallBubble.Add(curBubble);
+                bubbles.Remove(curBubble);
                 board[curBubble.row, curBubble.col] = null;
             }
 
@@ -619,11 +641,12 @@ namespace bubble_puzzle.GameObject
                 }
             }
 
-            foreach(Tuple<List<Point>, bool> curGroup in group)
+            foreach (Tuple<List<Point>, bool> curGroup in group)
             {
-                if(!curGroup.Item2) {
-                    foreach(Point i in curGroup.Item1)
-                    {   
+                if (!curGroup.Item2)
+                {
+                    foreach (Point i in curGroup.Item1)
+                    {
                         Bubble removedBubble = board[i.X, i.Y];
                         fallBubble.Add(removedBubble);
                         bubbles.Remove(removedBubble);
@@ -640,66 +663,87 @@ namespace bubble_puzzle.GameObject
 
         private void mst(Point currentPoint, bool[,] boardVisited, List<Tuple<List<Point>, bool>> group)
         {
+            //Setup
             Stack<Point> stack = new Stack<Point>();
             List<Point> groupTemp = new List<Point>();
             bool isConnectTop = false;
+
             stack.Push(new Point(currentPoint.X, currentPoint.Y));
             groupTemp.Add(new Point(currentPoint.X, currentPoint.Y));
             boardVisited[currentPoint.X, currentPoint.Y] = true;
+
             while (stack.Count != 0)
             {
                 Point cur = stack.Pop();
-                if (cur.X == 0) isConnectTop = true;
 
+                //Check this region is connect top wall
+                if (cur.X == 0) isConnectTop = true;
+                else if (board[cur.X - 1, cur.Y] != null && (int)board[cur.X - 1, cur.Y].currentBubbleType >= 6) isConnectTop = true;
+
+                //Check Left
                 if (cur.Y - 1 >= 0 && !boardVisited[cur.X, cur.Y - 1])
                 {
                     stack.Push(new Point(cur.X, cur.Y - 1));
                     groupTemp.Add(new Point(cur.X, cur.Y - 1));
                     boardVisited[cur.X, cur.Y - 1] = true;
                 }
-                if (cur.Y + 1 < 8 && !boardVisited[cur.X, cur.Y + 1])
+
+                //Check Right
+                if (cur.Y + 1 < GameConstants.BOARD_WIDTH && !boardVisited[cur.X, cur.Y + 1])
                 {
                     stack.Push(new Point(cur.X, cur.Y + 1));
                     groupTemp.Add(new Point(cur.X, cur.Y + 1));
                     boardVisited[cur.X, cur.Y + 1] = true;
                 }
+
+                //Check Top
                 if (cur.X - 1 >= 0 && !boardVisited[cur.X - 1, cur.Y])
                 {
                     stack.Push(new Point(cur.X - 1, cur.Y));
                     groupTemp.Add(new Point(cur.X - 1, cur.Y));
                     boardVisited[cur.X - 1, cur.Y] = true;
                 }
-                if (cur.X + 1 < 13 && !boardVisited[cur.X + 1, cur.Y])
+
+                //Check Bottom
+                if (cur.X + 1 < GameConstants.BOARD_HEIGHT && !boardVisited[cur.X + 1, cur.Y])
                 {
                     stack.Push(new Point(cur.X + 1, cur.Y));
                     groupTemp.Add(new Point(cur.X + 1, cur.Y));
                     boardVisited[cur.X + 1, cur.Y] = true;
                 }
 
+                //Split odd
                 if (rowType[cur.X])
                 {
+                    //Check Top left
                     if (cur.X - 1 >= 0 && cur.Y - 1 >= 0 && !boardVisited[cur.X - 1, cur.Y - 1])
                     {
                         stack.Push(new Point(cur.X - 1, cur.Y - 1));
                         groupTemp.Add(new Point(cur.X - 1, cur.Y - 1));
                         boardVisited[cur.X - 1, cur.Y - 1] = true;
                     }
-                    if (cur.X + 1 < 13 && cur.Y - 1 >= 0 && !boardVisited[cur.X + 1, cur.Y - 1])
+
+                    //Check Bottom left
+                    if (cur.X + 1 < GameConstants.BOARD_HEIGHT && cur.Y - 1 >= 0 && !boardVisited[cur.X + 1, cur.Y - 1])
                     {
                         stack.Push(new Point(cur.X + 1, cur.Y - 1));
                         groupTemp.Add(new Point(cur.X + 1, cur.Y - 1));
                         boardVisited[cur.X + 1, cur.Y - 1] = true;
                     }
                 }
+                //Split even
                 else
                 {
-                    if (cur.X - 1 >= 0 && cur.Y + 1 < 8 && !boardVisited[cur.X - 1, cur.Y + 1])
+                    //Check Top right
+                    if (cur.X - 1 >= 0 && cur.Y + 1 < GameConstants.BOARD_WIDTH && !boardVisited[cur.X - 1, cur.Y + 1])
                     {
                         stack.Push(new Point(cur.X - 1, cur.Y + 1));
                         groupTemp.Add(new Point(cur.X - 1, cur.Y + 1));
                         boardVisited[cur.X - 1, cur.Y + 1] = true;
                     }
-                    if (cur.X + 1 < 13 && cur.Y + 1 < 8 && !boardVisited[cur.X + 1, cur.Y + 1])
+
+                    //Check Bottom right
+                    if (cur.X + 1 < GameConstants.BOARD_HEIGHT && cur.Y + 1 < GameConstants.BOARD_WIDTH && !boardVisited[cur.X + 1, cur.Y + 1])
                     {
                         stack.Push(new Point(cur.X + 1, cur.Y + 1));
                         groupTemp.Add(new Point(cur.X + 1, cur.Y + 1));
