@@ -659,19 +659,21 @@ namespace bubble_puzzle.GameObject
         public List<Bubble> checkFall()
         {
             List<Bubble> fallBubble = new List<Bubble>();
+            //Remove bubble that matched
             foreach (Bubble curBubble in matchedBubbles)
             {
                 fallBubble.Add(curBubble);
                 bubbles.Remove(curBubble);
                 board[curBubble.row, curBubble.col] = null;
             }
-
+            
+            //Make visited check list
             bool[,] boardVisited = new bool[board.GetLength(0), board.GetLength(1)];
             for (int i = 0; i < boardVisited.GetLength(0); i++)
             {
                 for (int j = 0; j < boardVisited.GetLength(1); j++)
                 {
-                    if (board[i, j] == null)
+                    if (board[i, j] == null || (int)board[i, j].currentBubbleType >= 6)
                     {
                         boardVisited[i, j] = true;
                     }
@@ -682,6 +684,7 @@ namespace bubble_puzzle.GameObject
                 }
             }
 
+            //Loop each bubble to find region
             List<Tuple<List<Point>, bool>> group = new List<Tuple<List<Point>, bool>>();
             for (int i = 0; i < board.GetLength(0); i++)
             {
@@ -697,6 +700,7 @@ namespace bubble_puzzle.GameObject
                 }
             }
 
+            //Remove region that not connect the roof
             foreach (Tuple<List<Point>, bool> curGroup in group)
             {
                 if (!curGroup.Item2)
