@@ -513,19 +513,19 @@ namespace bubble_puzzle.GameObject
         {
             for (int i = board.GetLength(0) - 1; i > 0; i--)
             {
+                rowType[i] = !rowType[i];
                 for (int j = 0; j < board.GetLength(1); j++)
                 {
                     board[i, j] = board[i - 1, j];
                     board[i - 1, j] = null;
+                
                     if (board[i, j] != null)
                     {
                         board[i, j].Position.Y += 64;
                         board[i, j].row += 1;
                     }
-
                 }
             }
-
         }
 
         //check the current placement of the bubble
