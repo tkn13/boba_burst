@@ -623,8 +623,16 @@ namespace bubble_puzzle.GameObject
         public List<Bubble> checkFall()
         {
             List<Bubble> fallBubble = new List<Bubble>();
-            foreach (Bubble curBubble in matchedBubbles)
+            while (matchedBubbles.Count > 0)
             {
+                Bubble curBubble = matchedBubbles[0];
+                matchedBubbles.RemoveAt(0);
+
+                if (curBubble.currentBubbleType == BubbleType.Bomb)
+                {
+                    matchedBubbles.AddRange(bombActivate(curBubble));
+                }
+
                 fallBubble.Add(curBubble);
                 bubbles.Remove(curBubble);
                 board[curBubble.row, curBubble.col] = null;
@@ -772,6 +780,12 @@ namespace bubble_puzzle.GameObject
                 }
             }
             group.Add(new Tuple<List<Point>, bool>(groupTemp, isConnectTop));
+        }
+
+        public List<Bubble> bombActivate(Bubble bombBubble)
+        {
+            var neighbors = GetNeighbors(bombBubble);
+            return neighbors;
         }
     }
 }
