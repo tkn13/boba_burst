@@ -514,19 +514,23 @@ namespace bubble_puzzle.GameObject
         {
             for (int i = board.GetLength(0) - 1; i > 0; i--)
             {
+
                 for (int j = 0; j < board.GetLength(1); j++)
                 {
                     board[i, j] = board[i - 1, j];
                     board[i - 1, j] = null;
+
                     if (board[i, j] != null)
                     {
                         board[i, j].Position.Y += 64;
                         board[i, j].row += 1;
                     }
-
                 }
             }
-
+            for (int i = 0; i < rowType.Length; i++)
+            {
+                rowType[i] = !rowType[i];
+            }
         }
 
         // Random the type of bubble
@@ -562,7 +566,7 @@ namespace bubble_puzzle.GameObject
 
             // Random type from the weighted list
             int randomIndex = GameConstants.random.Next(weightedTypes.Count);
-            resultType = weightedTypes[randomIndex]; 
+            resultType = weightedTypes[randomIndex];
 
             return resultType;
         }
@@ -591,12 +595,12 @@ namespace bubble_puzzle.GameObject
                         neighbor.currentBubbleType == BubbleType.Bomb))
                     {
                         visited.Add(neighbor);
-                        stack.Push(neighbor);                       
+                        stack.Push(neighbor);
                     }
                 }
             }
 
-            if(matchBubbles.Count < 3)
+            if (matchBubbles.Count < 3)
             {
                 matchBubbles = null;
             }
@@ -673,13 +677,14 @@ namespace bubble_puzzle.GameObject
                 bubbles.Remove(curBubble);
                 board[curBubble.row, curBubble.col] = null;
             }
-
+            
+            //Make visited check list
             bool[,] boardVisited = new bool[board.GetLength(0), board.GetLength(1)];
             for (int i = 0; i < boardVisited.GetLength(0); i++)
             {
                 for (int j = 0; j < boardVisited.GetLength(1); j++)
                 {
-                    if (board[i, j] == null)
+                    if (board[i, j] == null || (int)board[i, j].currentBubbleType >= 6)
                     {
                         boardVisited[i, j] = true;
                     }
@@ -690,7 +695,8 @@ namespace bubble_puzzle.GameObject
                 }
             }
 
-            List<Tuple<List<Point>, bool>> group = new List<Tuple<List<Point>, bool>>();
+            //Loop each bubble to find region
+            List<Tuple<List<Bubble>, bool>> group = new List<Tuple<List<Bubble>, bool>>();
             for (int i = 0; i < board.GetLength(0); i++)
             {
                 int endArray = rowType[i] ? 8 : 7;
@@ -700,21 +706,22 @@ namespace bubble_puzzle.GameObject
                     if (!boardVisited[i, j])
                     {
                         // Console.WriteLine(i + " " + j);
-                        mst(new Point(i, j), boardVisited, group);
+                        mst(board[i, j], boardVisited, group);
                     }
                 }
             }
 
-            foreach (Tuple<List<Point>, bool> curGroup in group)
+            //Remove region that not connect the roof
+            foreach (Tuple<List<Bubble>, bool> curGroup in group)
             {
                 if (!curGroup.Item2)
                 {
-                    foreach (Point i in curGroup.Item1)
+                    foreach (Bubble i in curGroup.Item1)
                     {
-                        Bubble removedBubble = board[i.X, i.Y];
+                        Bubble removedBubble = board[i.row, i.col];
                         fallBubble.Add(removedBubble);
                         bubbles.Remove(removedBubble);
-                        board[i.X, i.Y] = null;
+                        board[i.row, i.col] = null;
 
                         // Console.WriteLine(i.X + " " + i.Y);
                     }
@@ -725,100 +732,41 @@ namespace bubble_puzzle.GameObject
             return fallBubble;
         }
 
-        private void mst(Point currentPoint, bool[,] boardVisited, List<Tuple<List<Point>, bool>> group)
+        private void mst(Bubble currentBubble, bool[,] boardVisited, List<Tuple<List<Bubble>, bool>> group)
         {
             //Setup
-            Stack<Point> stack = new Stack<Point>();
-            List<Point> groupTemp = new List<Point>();
+            Stack<Bubble> stack = new Stack<Bubble>();
+            List<Bubble> groupTemp = new List<Bubble>();
             bool isConnectTop = false;
 
-            stack.Push(new Point(currentPoint.X, currentPoint.Y));
-            groupTemp.Add(new Point(currentPoint.X, currentPoint.Y));
-            boardVisited[currentPoint.X, currentPoint.Y] = true;
+            stack.Push(currentBubble);
+            groupTemp.Add(currentBubble);
+            boardVisited[currentBubble.row, currentBubble.col] = true;
 
             while (stack.Count != 0)
             {
-                Point cur = stack.Pop();
+                Bubble cur = stack.Pop();
 
                 //Check this region is connect top wall
-                if (cur.X == 0) isConnectTop = true;
-                else if (board[cur.X - 1, cur.Y] != null && (int)board[cur.X - 1, cur.Y].currentBubbleType >= 6) isConnectTop = true;
+                if (cur.row == 0) isConnectTop = true;
+                else if (board[cur.row - 1, cur.col] != null && (int)board[cur.row - 1, cur.col].currentBubbleType >= 6) isConnectTop = true;
 
-                //Check Left
-                if (cur.Y - 1 >= 0 && !boardVisited[cur.X, cur.Y - 1])
-                {
-                    stack.Push(new Point(cur.X, cur.Y - 1));
-                    groupTemp.Add(new Point(cur.X, cur.Y - 1));
-                    boardVisited[cur.X, cur.Y - 1] = true;
-                }
+                List<Bubble> neighbors = GetNeighbors(cur);
 
-                //Check Right
-                if (cur.Y + 1 < GameConstants.BOARD_WIDTH && !boardVisited[cur.X, cur.Y + 1])
+                foreach (Bubble tmp in neighbors) 
                 {
-                    stack.Push(new Point(cur.X, cur.Y + 1));
-                    groupTemp.Add(new Point(cur.X, cur.Y + 1));
-                    boardVisited[cur.X, cur.Y + 1] = true;
-                }
-
-                //Check Top
-                if (cur.X - 1 >= 0 && !boardVisited[cur.X - 1, cur.Y])
-                {
-                    stack.Push(new Point(cur.X - 1, cur.Y));
-                    groupTemp.Add(new Point(cur.X - 1, cur.Y));
-                    boardVisited[cur.X - 1, cur.Y] = true;
-                }
-
-                //Check Bottom
-                if (cur.X + 1 < GameConstants.BOARD_HEIGHT && !boardVisited[cur.X + 1, cur.Y])
-                {
-                    stack.Push(new Point(cur.X + 1, cur.Y));
-                    groupTemp.Add(new Point(cur.X + 1, cur.Y));
-                    boardVisited[cur.X + 1, cur.Y] = true;
-                }
-
-                //Split odd
-                if (rowType[cur.X])
-                {
-                    //Check Top left
-                    if (cur.X - 1 >= 0 && cur.Y - 1 >= 0 && !boardVisited[cur.X - 1, cur.Y - 1])
+                    if (!boardVisited[tmp.row, tmp.col])
                     {
-                        stack.Push(new Point(cur.X - 1, cur.Y - 1));
-                        groupTemp.Add(new Point(cur.X - 1, cur.Y - 1));
-                        boardVisited[cur.X - 1, cur.Y - 1] = true;
-                    }
-
-                    //Check Bottom left
-                    if (cur.X + 1 < GameConstants.BOARD_HEIGHT && cur.Y - 1 >= 0 && !boardVisited[cur.X + 1, cur.Y - 1])
-                    {
-                        stack.Push(new Point(cur.X + 1, cur.Y - 1));
-                        groupTemp.Add(new Point(cur.X + 1, cur.Y - 1));
-                        boardVisited[cur.X + 1, cur.Y - 1] = true;
-                    }
-                }
-                //Split even
-                else
-                {
-                    //Check Top right
-                    if (cur.X - 1 >= 0 && cur.Y + 1 < GameConstants.BOARD_WIDTH && !boardVisited[cur.X - 1, cur.Y + 1])
-                    {
-                        stack.Push(new Point(cur.X - 1, cur.Y + 1));
-                        groupTemp.Add(new Point(cur.X - 1, cur.Y + 1));
-                        boardVisited[cur.X - 1, cur.Y + 1] = true;
-                    }
-
-                    //Check Bottom right
-                    if (cur.X + 1 < GameConstants.BOARD_HEIGHT && cur.Y + 1 < GameConstants.BOARD_WIDTH && !boardVisited[cur.X + 1, cur.Y + 1])
-                    {
-                        stack.Push(new Point(cur.X + 1, cur.Y + 1));
-                        groupTemp.Add(new Point(cur.X + 1, cur.Y + 1));
-                        boardVisited[cur.X + 1, cur.Y + 1] = true;
+                        stack.Push(tmp);
+                        groupTemp.Add(tmp);
+                        boardVisited[tmp.row, tmp.col] = true;
                     }
                 }
             }
-            group.Add(new Tuple<List<Point>, bool>(groupTemp, isConnectTop));
+            group.Add(new Tuple<List<Bubble>, bool>(groupTemp, isConnectTop));
         }
 
-        public void calculateScore() 
+        public void calculateScore()
         {
             Singleton.Instance.score += falledBubbles.Count * Math.Max(falledBubbles.Count - 2, 1) * 20;
         }
