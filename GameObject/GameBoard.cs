@@ -663,9 +663,16 @@ namespace bubble_puzzle.GameObject
         public List<Bubble> checkFall()
         {
             List<Bubble> fallBubble = new List<Bubble>();
-            //Remove bubble that matched
-            foreach (Bubble curBubble in matchedBubbles)
+            while (matchedBubbles.Count > 0)
             {
+                Bubble curBubble = matchedBubbles[0];
+                matchedBubbles.RemoveAt(0);
+
+                if (curBubble.currentBubbleType == BubbleType.Bomb)
+                {
+                    matchedBubbles.AddRange(bombActivate(curBubble));
+                }
+
                 fallBubble.Add(curBubble);
                 bubbles.Remove(curBubble);
                 board[curBubble.row, curBubble.col] = null;
@@ -762,6 +769,12 @@ namespace bubble_puzzle.GameObject
         public void calculateScore()
         {
             Singleton.Instance.score += falledBubbles.Count * Math.Max(falledBubbles.Count - 2, 1) * 20;
+        }
+
+        public List<Bubble> bombActivate(Bubble bombBubble)
+        {
+            var neighbors = GetNeighbors(bombBubble);
+            return neighbors;
         }
     }
 }
