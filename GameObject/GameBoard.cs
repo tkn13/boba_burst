@@ -514,19 +514,23 @@ namespace bubble_puzzle.GameObject
         {
             for (int i = board.GetLength(0) - 1; i > 0; i--)
             {
+
                 for (int j = 0; j < board.GetLength(1); j++)
                 {
                     board[i, j] = board[i - 1, j];
                     board[i - 1, j] = null;
+
                     if (board[i, j] != null)
                     {
                         board[i, j].Position.Y += 64;
                         board[i, j].row += 1;
                     }
-
                 }
             }
-
+            for (int i = 0; i < rowType.Length; i++)
+            {
+                rowType[i] = !rowType[i];
+            }
         }
 
         // Random the type of bubble
@@ -562,7 +566,7 @@ namespace bubble_puzzle.GameObject
 
             // Random type from the weighted list
             int randomIndex = GameConstants.random.Next(weightedTypes.Count);
-            resultType = weightedTypes[randomIndex]; 
+            resultType = weightedTypes[randomIndex];
 
             return resultType;
         }
@@ -591,12 +595,12 @@ namespace bubble_puzzle.GameObject
                         neighbor.currentBubbleType == BubbleType.Bomb))
                     {
                         visited.Add(neighbor);
-                        stack.Push(neighbor);                       
+                        stack.Push(neighbor);
                     }
                 }
             }
 
-            if(matchBubbles.Count < 3)
+            if (matchBubbles.Count < 3)
             {
                 matchBubbles = null;
             }
@@ -810,7 +814,7 @@ namespace bubble_puzzle.GameObject
             group.Add(new Tuple<List<Point>, bool>(groupTemp, isConnectTop));
         }
 
-        public void calculateScore() 
+        public void calculateScore()
         {
             Singleton.Instance.score += falledBubbles.Count * Math.Max(falledBubbles.Count - 2, 1) * 20;
         }
