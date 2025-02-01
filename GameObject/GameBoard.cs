@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using bubbleTea;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -20,6 +19,7 @@ namespace bubble_puzzle.GameObject
         Bubble currentBubble;
         public AimAssistant aimAssistant;
         public Texture2D highlightTexture;
+        public Texture2D freezeTexture;
         public Texture2D[] bubbleTexture;
         public string mapText;
         public Player player;
@@ -203,15 +203,7 @@ namespace bubble_puzzle.GameObject
         {
             spriteBatch.Draw(texture, Position, null, Color.White, Rotation, Vector2.Zero, Scale, SpriteEffects.None, 0);
 
-            foreach (Bubble bubble in bubbles)
-            {
-                bubble.Draw(spriteBatch);
-            }
-
-            foreach (Bubble bubble in falledBubbles)
-            {
-                bubble.Draw(spriteBatch);
-            }
+            player.Draw(spriteBatch);
 
             switch (currentGameState)
             {
@@ -232,9 +224,21 @@ namespace bubble_puzzle.GameObject
                     break;
             }
 
+            foreach (Bubble bubble in bubbles)
+            {
+                bubble.Draw(spriteBatch);
+            }
 
-            player.Draw(spriteBatch);
+            foreach (Bubble bubble in falledBubbles)
+            {
+                bubble.Draw(spriteBatch);
+            }
             currentBubble.Draw(spriteBatch);
+
+            if(isFrozen)
+            {
+                spriteBatch.Draw(freezeTexture, Position, Color.White);
+            }
 
             base.Draw(spriteBatch);
         }
@@ -297,9 +301,16 @@ namespace bubble_puzzle.GameObject
                 }
             }
 
-            currentGameState = GameState.BubbleReload;
+            currentBubble = new Bubble(null);
+            //currentBubble.isHighlighted = true;
+            currentBubble.Position = GameConstants.SHOOT_POSITION;
+            int bubleType = currentBubble.RandomBubbleType(0.5f, new BubbleType[] { BubbleType.Red, BubbleType.Green, BubbleType.Blue, BubbleType.Yellow });
+            currentBubble.setTexture(bubbleTexture[bubleType], highlightTexture);
             aimAssistant.Rotation = 0;
             Singleton.Instance.score = 0;
+            _tick = 0;
+
+            currentGameState = GameState.Aim;
 
             base.Reset();
         }
@@ -677,7 +688,7 @@ namespace bubble_puzzle.GameObject
                 bubbles.Remove(curBubble);
                 board[curBubble.row, curBubble.col] = null;
             }
-            
+
             //Make visited check list
             bool[,] boardVisited = new bool[board.GetLength(0), board.GetLength(1)];
             for (int i = 0; i < boardVisited.GetLength(0); i++)
@@ -753,7 +764,7 @@ namespace bubble_puzzle.GameObject
 
                 List<Bubble> neighbors = GetNeighbors(cur);
 
-                foreach (Bubble tmp in neighbors) 
+                foreach (Bubble tmp in neighbors)
                 {
                     if (!boardVisited[tmp.row, tmp.col])
                     {

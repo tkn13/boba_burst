@@ -20,7 +20,7 @@ namespace bubble_puzzle.GameObject
         public override void Draw(SpriteBatch spriteBatch)
         {   
             Vector2 temp = GameConstants.SHOOT_PIVOT_POSITION;
-            Vector2 origin = new Vector2(texture.Width / 2, 192);
+            Vector2 origin = new Vector2(texture.Width / 2, 256);
             spriteBatch.Draw(texture, temp, null, Color.White, Rotation, origin, Scale, SpriteEffects.None, 0);
             
             base.Draw(spriteBatch);
