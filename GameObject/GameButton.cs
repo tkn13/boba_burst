@@ -9,7 +9,7 @@ namespace bubble_puzzle.GameObject
         public GameButton(Texture2D texture) : base(texture)
         {
             this.texture = texture;
-            Position = GameConstants.PLAY_BUTTON_POSITION;
+           
         }
 
         public override void Update(GameTime gameTime)
