@@ -1,7 +1,7 @@
 using bubble_puzzle.GameObject;
 using Microsoft.Xna.Framework.Input;
 
-namespace bubbleTea
+namespace bubble_puzzle
 {
     class Singleton
     {
