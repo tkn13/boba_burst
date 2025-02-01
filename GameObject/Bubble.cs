@@ -74,7 +74,7 @@ namespace bubble_puzzle.GameObject
                 {
                     currentBubbleType = bubbles[randomIndex].currentBubbleType;
                 }
-            }
+            } 
             while (currentBubbleType == BubbleType.Frozen || currentBubbleType == BubbleType.Bomb);
 
             return (int)currentBubbleType;

@@ -18,7 +18,12 @@ namespace bubble_puzzle.GameObject
         List<Bubble> matchedBubbles;
         List<Bubble> falledBubbles;
         List<Bubble> killedBubbles;
+
         Bubble currentBubble;
+        Bubble previousBubble;
+        int sameTypeCount;
+        int maxSameType;
+
         public AimAssistant aimAssistant;
         public Texture2D highlightTexture;
         public Texture2D[] bubbleTexture;
@@ -43,7 +48,8 @@ namespace bubble_puzzle.GameObject
             isFrozen = false;
             frozenDuration = 3;
             frozenTick = 0;
-
+            sameTypeCount = 0;
+            maxSameType = 3;
             _tick = 0;
         }
 
@@ -98,12 +104,29 @@ namespace bubble_puzzle.GameObject
             switch (currentGameState)
             {
                 case GameState.BubbleReload:
-
                     currentBubble = new Bubble(null);
                     //currentBubble.isHighlighted = true;
                     currentBubble.Position = GameConstants.SHOOT_POSITION;
-                    int bubleType = currentBubble.RandomBubbleType(bubbles);
-                    currentBubble.setTexture(bubbleTexture[bubleType], highlightTexture);
+
+                    // check if the game random the same type too much
+                    do
+                    {
+                        int bubleType = currentBubble.RandomBubbleType(bubbles);
+                        currentBubble.setTexture(bubbleTexture[bubleType], highlightTexture);
+                    } 
+                    while (currentBubble == previousBubble && sameTypeCount >= maxSameType);
+
+                    // same type streak counter and update previous bubble 
+                    if (currentBubble == previousBubble) 
+                    {
+                        sameTypeCount++;
+                    }
+                    else
+                    {
+                        sameTypeCount = 0;
+                    }
+                    previousBubble = currentBubble;
+
                     currentGameState = GameState.Aim;
 
                     break;
