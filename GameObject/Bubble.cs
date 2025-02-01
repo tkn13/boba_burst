@@ -97,7 +97,7 @@ namespace bubble_puzzle.GameObject
             // Random type from the weighted list
             int randomIndex = GameConstants.random.Next(weightedTypes.Count);
             resultType = weightedTypes[randomIndex];
-
+            currentBubbleType = resultType;
             return resultType;
         }
 
