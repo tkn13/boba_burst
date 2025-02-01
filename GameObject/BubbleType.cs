@@ -7,6 +7,15 @@ namespace bubble_puzzle.GameObject
         Blue,
         Yellow,
         Frozen,
-        Bomb
+        Bomb,
+        TopLeftWall,
+        TopWall,
+        TopRightWall,
+        LeftWall,
+        CenterWall,
+        RightWall,
+        BottomLeftWall,
+        BottomWall,
+        BottomRightWall
     }
 }
