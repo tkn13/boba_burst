@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using bubbleTea;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -101,9 +102,8 @@ namespace bubble_puzzle.GameObject
                     currentBubble = new Bubble(null);
                     //currentBubble.isHighlighted = true;
                     currentBubble.Position = GameConstants.SHOOT_POSITION;
-                    int bubleType = currentBubble.RandomBubbleType(0.5f, new BubbleType[] { BubbleType.Red, BubbleType.Green, BubbleType.Blue, BubbleType.Yellow });
+                    int bubleType = currentBubble.RandomBubbleType(bubbles);
                     currentBubble.setTexture(bubbleTexture[bubleType], highlightTexture);
-
                     currentGameState = GameState.Aim;
 
                     break;
@@ -495,6 +495,17 @@ namespace bubble_puzzle.GameObject
             currentBubble.row = row;
             currentBubble.col = col;
             board[row, col] = currentBubble;
+        }
+
+        public bool checkWin()
+        {
+            // check if the board has no more bubble, player win.
+            if (bubbles.Count == 0)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         public void gameOver()

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -64,9 +65,17 @@ namespace bubble_puzzle.GameObject
 
         //Random Bubble Type Function with weight 
         //base from it's child bubbles there have a chance to spawn with the same type
-        public int RandomBubbleType(float weight, BubbleType[] type)
+        public int RandomBubbleType(List<Bubble> bubbles)
         {
-            currentBubbleType = type[GameConstants.random.Next(0, type.Length)];
+            do
+            {
+                int randomIndex = GameConstants.random.Next(bubbles.Count);
+                if (bubbles.Count > 0)
+                {
+                    currentBubbleType = bubbles[randomIndex].currentBubbleType;
+                }
+            }
+            while (currentBubbleType == BubbleType.Frozen || currentBubbleType == BubbleType.Bomb);
 
             return (int)currentBubbleType;
         }
