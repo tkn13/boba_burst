@@ -14,6 +14,7 @@ namespace bubble_puzzle.GameObject
         private float _tick;
         List<Bubble> bubbles;
         List<Bubble> matchedBubbles;
+        List<Bubble> walls;
         List<Bubble> falledBubbles;
         List<Bubble> killedBubbles;
         Bubble currentBubble;
@@ -23,6 +24,7 @@ namespace bubble_puzzle.GameObject
         public Texture2D[] bubbleTexture;
         public string mapText;
         public Player player;
+        public int currentRootRow;
 
         public bool isFrozen;
         public float frozenDuration;
@@ -36,12 +38,14 @@ namespace bubble_puzzle.GameObject
             matchedBubbles = new List<Bubble>();
             falledBubbles = new List<Bubble>();
             killedBubbles = new List<Bubble>();
-            bubbleTexture = new Texture2D[6];
+            bubbleTexture = new Texture2D[15];
             aimAssistant = new AimAssistant(null);
             player = new Player(null);
+            walls = new List<Bubble>();
             isFrozen = false;
             frozenDuration = 3;
             frozenTick = 0;
+            currentRootRow = 0;
 
             _tick = 0;
         }
@@ -157,7 +161,7 @@ namespace bubble_puzzle.GameObject
 
                     currentBubble.Update(gameTime);
                     //check if the bubble is collide with the another bubble
-                    if (currentBubble.isCollide(bubbles) != null || currentBubble.isCollideWithRoof())
+                    if (currentBubble.isCollide(bubbles) != null || currentBubble.isCollideWithRoof(currentRootRow))
                     {
                         Bubble colledBubble = currentBubble.isCollide(bubbles);
                         placeBubble(currentBubble, colledBubble);
@@ -202,6 +206,11 @@ namespace bubble_puzzle.GameObject
         public override void Draw(SpriteBatch spriteBatch)
         {
             spriteBatch.Draw(texture, Position, null, Color.White, Rotation, Vector2.Zero, Scale, SpriteEffects.None, 0);
+
+            foreach (Bubble wall in walls)
+            {
+                wall.Draw(spriteBatch);
+            }
 
             player.Draw(spriteBatch);
 
@@ -308,6 +317,8 @@ namespace bubble_puzzle.GameObject
             currentBubble.setTexture(bubbleTexture[bubleType], highlightTexture);
             aimAssistant.Rotation = 0;
             Singleton.Instance.score = 0;
+            currentRootRow = 0;
+            walls.Clear();
             _tick = 0;
 
             currentGameState = GameState.Aim;
@@ -364,13 +375,13 @@ namespace bubble_puzzle.GameObject
             //if the colled bubbles is null means that the bubble is colled with the roof place the bubble at the top
             if (colledBubble == null)
             {
-                currentBubble.Position.Y = GameConstants.BOARD_POSITION.Y;
+                currentBubble.Position.Y = GameConstants.BOARD_POSITION.Y + (GameConstants.TILE_SIZE * currentRootRow);
                 float centerX = currentBubble.Position.X + GameConstants.TILE_SIZE / 2;
                 //minus board position to normalize the position
                 centerX -= GameConstants.BOARD_POSITION.X;
                 int placePosition = 0;
                 int divider = 0;
-                if (rowType[0] == true)
+                if (rowType[currentRootRow] == true)
                 {
                     divider = GameConstants.TILE_SIZE;
                     placePosition = (int)(centerX / divider);
@@ -523,9 +534,9 @@ namespace bubble_puzzle.GameObject
         //drop the bubble from the top
         public void ceilingDrop()
         {
+            //Move Bubble down
             for (int i = board.GetLength(0) - 1; i > 0; i--)
             {
-
                 for (int j = 0; j < board.GetLength(1); j++)
                 {
                     board[i, j] = board[i - 1, j];
@@ -538,10 +549,39 @@ namespace bubble_puzzle.GameObject
                     }
                 }
             }
+
+            //Swap rowType
             for (int i = 0; i < rowType.Length; i++)
             {
                 rowType[i] = !rowType[i];
             }
+
+            //Spawn Wall
+            for (int j = 0; j < GameConstants.BOARD_WIDTH; j++)
+            {
+                Bubble bubble = new Bubble(null);
+
+                if (currentRootRow > 0)
+                {
+                    if (j == 0) bubble.currentBubbleType = BubbleType.LeftWall;
+                    else if (j == GameConstants.BOARD_WIDTH - 1) bubble.currentBubbleType = BubbleType.RightWall;
+                    else bubble.currentBubbleType = BubbleType.CenterWall;
+                }
+                else
+                {
+                    if (j == 0) bubble.currentBubbleType = BubbleType.BottomLeftWall;
+                    else if (j == GameConstants.BOARD_WIDTH - 1) bubble.currentBubbleType = BubbleType.BottomRightWall;
+                    else bubble.currentBubbleType = BubbleType.BottomWall;
+                }
+
+                bubble.setTexture(bubbleTexture[(int)bubble.currentBubbleType], highlightTexture);
+                bubble.row = 0;
+                bubble.col = j;
+                board[0, j] = bubble;
+                bubble.Position = new Vector2(GameConstants.BOARD_POSITION.X + (GameConstants.TILE_SIZE * j), GameConstants.BOARD_POSITION.Y + (GameConstants.TILE_SIZE * 0));
+                walls.Add(bubble);
+            }
+            currentRootRow++;
         }
 
         // Random the type of bubble

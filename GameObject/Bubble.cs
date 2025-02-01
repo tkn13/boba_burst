@@ -106,9 +106,9 @@ namespace bubble_puzzle.GameObject
             return closestBubble;
         }
 
-        public bool isCollideWithRoof()
+        public bool isCollideWithRoof(int currentRoof)
         {
-            if (Position.Y < GameConstants.BOARD_POSITION.Y)
+            if (Position.Y < GameConstants.BOARD_POSITION.Y + (currentRoof * GameConstants.TILE_SIZE))
             {
                 return true;
             }

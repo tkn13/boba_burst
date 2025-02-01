@@ -73,7 +73,8 @@ public class MainScene : Game
         //load all of buble texture into array
         for (int i = 0; i < Singleton.Instance.gameBoard.bubbleTexture.Length; i++)
         {
-            Singleton.Instance.gameBoard.bubbleTexture[i] = Content.Load<Texture2D>("image/bubbles/bubble0" + i);
+            if (i<10) Singleton.Instance.gameBoard.bubbleTexture[i] = Content.Load<Texture2D>("image/bubbles/bubble0" + i);
+            else Singleton.Instance.gameBoard.bubbleTexture[i] = Content.Load<Texture2D>("image/bubbles/bubble" + i);
         }
         //Singleton.Instance.gameBoard.Reset();
         //load all of score texture into array
