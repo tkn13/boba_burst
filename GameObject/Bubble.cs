@@ -65,19 +65,57 @@ namespace bubble_puzzle.GameObject
 
         //Random Bubble Type Function with weight 
         //base from it's child bubbles there have a chance to spawn with the same type
-        public int RandomBubbleType(List<Bubble> bubbles)
-        {
-            do
-            {
-                int randomIndex = GameConstants.random.Next(bubbles.Count);
-                if (bubbles.Count > 0)
-                {
-                    currentBubbleType = bubbles[randomIndex].currentBubbleType;
-                }
-            } 
-            while (currentBubbleType == BubbleType.Frozen || currentBubbleType == BubbleType.Bomb);
+        // public int RandomBubbleType(List<Bubble> bubbles)
+        // {
+        //     do
+        //     {
+        //         int randomIndex = GameConstants.random.Next(bubbles.Count);
+        //         if (bubbles.Count > 0)
+        //         {
+        //             currentBubbleType = bubbles[randomIndex].currentBubbleType;
+        //         }
+        //     } 
+        //     while (currentBubbleType == BubbleType.Frozen || currentBubbleType == BubbleType.Bomb);
 
-            return (int)currentBubbleType;
+        //     return (int)currentBubbleType;
+        // }
+
+        // Random the type of bubble
+        public BubbleType RandomBubbleType(List<BubbleType> availableTypes, List<BubbleType> biasTypes)
+        {
+            BubbleType resultType;
+            List<BubbleType> weightedTypes = new List<BubbleType>();
+
+            // Add normal weight for each available type
+            foreach (var type in availableTypes)
+            {
+                weightedTypes.Add(type);
+            }
+
+            // Add normal weight again except special type
+            foreach (var type in availableTypes)
+            {
+                if (type != BubbleType.Bomb || type != BubbleType.Frozen)
+                {
+                    weightedTypes.Add(type);
+                }
+            }
+
+            // Add extra weight for each bias type
+            foreach (var type in biasTypes)
+            {
+                if (availableTypes.Contains(type))
+                {
+                    weightedTypes.Add(type);
+                    weightedTypes.Add(type);
+                }
+            }
+
+            // Random type from the weighted list
+            int randomIndex = GameConstants.random.Next(weightedTypes.Count);
+            resultType = weightedTypes[randomIndex];
+
+            return resultType;
         }
 
         public void setTexture(Texture2D texture, Texture2D highlightTexture)

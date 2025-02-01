@@ -19,6 +19,7 @@ namespace bubble_puzzle.GameObject
         List<Bubble> falledBubbles;
         List<Bubble> killedBubbles;
 
+        HashSet<BubbleType> availableTypes;
         Bubble currentBubble;
         Bubble previousBubble;
         int sameTypeCount;
@@ -42,6 +43,7 @@ namespace bubble_puzzle.GameObject
             matchedBubbles = new List<Bubble>();
             falledBubbles = new List<Bubble>();
             killedBubbles = new List<Bubble>();
+            availableTypes = new HashSet<BubbleType>();
             bubbleTexture = new Texture2D[6];
             aimAssistant = new AimAssistant(null);
             player = new Player(null);
@@ -108,10 +110,18 @@ namespace bubble_puzzle.GameObject
                     //currentBubble.isHighlighted = true;
                     currentBubble.Position = GameConstants.SHOOT_POSITION;
 
+                    foreach (var bubble in bubbles)
+                    {
+                        if (!(bubble.currentBubbleType == BubbleType.Frozen || bubble.currentBubbleType == BubbleType.Bomb))
+                        {
+                            availableTypes.Add(bubble.currentBubbleType);
+                        }
+                    }
+
                     // check if the game random the same type too much
                     do
                     {
-                        int bubleType = currentBubble.RandomBubbleType(bubbles);
+                        int bubleType = (int)currentBubble.RandomBubbleType(new List<BubbleType>(availableTypes), new List<BubbleType>());
                         currentBubble.setTexture(bubbleTexture[bubleType], highlightTexture);
                     } 
                     while (currentBubble == previousBubble && sameTypeCount >= maxSameType);
@@ -565,44 +575,6 @@ namespace bubble_puzzle.GameObject
             {
                 rowType[i] = !rowType[i];
             }
-        }
-
-        // Random the type of bubble
-        public BubbleType RandomBubbleType(List<BubbleType> availableTypes, List<BubbleType> biasTypes)
-        {
-            BubbleType resultType;
-            List<BubbleType> weightedTypes = new List<BubbleType>();
-
-            // Add normal weight for each available type
-            foreach (var type in availableTypes)
-            {
-                weightedTypes.Add(type);
-            }
-
-            // Add normal weight again except special type
-            foreach (var type in availableTypes)
-            {
-                if (type != BubbleType.Bomb || type != BubbleType.Frozen)
-                {
-                    weightedTypes.Add(type);
-                }
-            }
-
-            // Add extra weight for each bias type
-            foreach (var type in biasTypes)
-            {
-                if (availableTypes.Contains(type))
-                {
-                    weightedTypes.Add(type);
-                    weightedTypes.Add(type);
-                }
-            }
-
-            // Random type from the weighted list
-            int randomIndex = GameConstants.random.Next(weightedTypes.Count);
-            resultType = weightedTypes[randomIndex];
-
-            return resultType;
         }
 
         //check the current placement of the bubble
