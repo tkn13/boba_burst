@@ -17,7 +17,11 @@ namespace bubble_puzzle.GameObject
         List<Bubble> walls;
         List<Bubble> falledBubbles;
         List<Bubble> killedBubbles;
+         HashSet<BubbleType> availableTypes;
         Bubble currentBubble;
+        Bubble previousBubble;
+        int sameTypeCount;
+        int maxSameType;
         public AimAssistant aimAssistant;
         public Texture2D highlightTexture;
         public Texture2D freezeTexture;
@@ -39,10 +43,13 @@ namespace bubble_puzzle.GameObject
             falledBubbles = new List<Bubble>();
             killedBubbles = new List<Bubble>();
             bubbleTexture = new Texture2D[15];
+            availableTypes = new HashSet<BubbleType>();
             aimAssistant = new AimAssistant(null);
             player = new Player(null);
             walls = new List<Bubble>();
             isFrozen = false;
+            sameTypeCount = 0;
+            maxSameType = 3;
             frozenDuration = 3;
             frozenTick = 0;
             currentRootRow = 0;
@@ -105,8 +112,34 @@ namespace bubble_puzzle.GameObject
                     currentBubble = new Bubble(null);
                     //currentBubble.isHighlighted = true;
                     currentBubble.Position = GameConstants.SHOOT_POSITION;
-                    int bubleType = currentBubble.RandomBubbleType(0.5f, new BubbleType[] { BubbleType.Red, BubbleType.Green, BubbleType.Blue, BubbleType.Yellow });
-                    currentBubble.setTexture(bubbleTexture[bubleType], highlightTexture);
+
+                    // create available types from bubbles in the board
+                    foreach (var bubble in bubbles)
+                    {
+                        if (!(bubble.currentBubbleType == BubbleType.Frozen || bubble.currentBubbleType == BubbleType.Bomb))
+                        {
+                            availableTypes.Add(bubble.currentBubbleType);
+                        }
+                    }
+
+                    // check if the game random the same type too much
+                    do
+                    {
+                        int bubleType = (int)currentBubble.RandomBubbleType(new List<BubbleType>(availableTypes), new List<BubbleType>());
+                        currentBubble.setTexture(bubbleTexture[bubleType], highlightTexture);
+                    } 
+                    while (currentBubble == previousBubble && sameTypeCount >= maxSameType);
+
+                    // same type streak counter and update previous bubble 
+                    if (currentBubble == previousBubble) 
+                    {
+                        sameTypeCount++;
+                    }
+                    else
+                    {
+                        sameTypeCount = 0;
+                    }
+                    previousBubble = currentBubble;
 
                     currentGameState = GameState.Aim;
 
@@ -313,7 +346,14 @@ namespace bubble_puzzle.GameObject
             currentBubble = new Bubble(null);
             //currentBubble.isHighlighted = true;
             currentBubble.Position = GameConstants.SHOOT_POSITION;
-            int bubleType = currentBubble.RandomBubbleType(0.5f, new BubbleType[] { BubbleType.Red, BubbleType.Green, BubbleType.Blue, BubbleType.Yellow });
+            int bubleType = (int)currentBubble.RandomBubbleType(new List<BubbleType>()
+                    {
+                       BubbleType.Red,
+                       BubbleType.Green,
+                       BubbleType.Blue,
+                       BubbleType.Yellow               
+                    }, new List<BubbleType>());
+
             currentBubble.setTexture(bubbleTexture[bubleType], highlightTexture);
             aimAssistant.Rotation = 0;
             Singleton.Instance.score = 0;
@@ -531,6 +571,17 @@ namespace bubble_puzzle.GameObject
             }
         }
 
+        public bool checkWin()
+        {
+            // check if the board has no more bubble, player win.
+            if (bubbles.Count == 0)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         //drop the bubble from the top
         public void ceilingDrop()
         {
@@ -582,44 +633,6 @@ namespace bubble_puzzle.GameObject
                 walls.Add(bubble);
             }
             currentRootRow++;
-        }
-
-        // Random the type of bubble
-        public BubbleType RandomBubbleType(List<BubbleType> availableTypes, List<BubbleType> biasTypes)
-        {
-            BubbleType resultType;
-            List<BubbleType> weightedTypes = new List<BubbleType>();
-
-            // Add normal weight for each available type
-            foreach (var type in availableTypes)
-            {
-                weightedTypes.Add(type);
-            }
-
-            // Add normal weight again except special type
-            foreach (var type in availableTypes)
-            {
-                if (type != BubbleType.Bomb || type != BubbleType.Frozen)
-                {
-                    weightedTypes.Add(type);
-                }
-            }
-
-            // Add extra weight for each bias type
-            foreach (var type in biasTypes)
-            {
-                if (availableTypes.Contains(type))
-                {
-                    weightedTypes.Add(type);
-                    weightedTypes.Add(type);
-                }
-            }
-
-            // Random type from the weighted list
-            int randomIndex = GameConstants.random.Next(weightedTypes.Count);
-            resultType = weightedTypes[randomIndex];
-
-            return resultType;
         }
 
         //check the current placement of the bubble
