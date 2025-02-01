@@ -92,6 +92,18 @@
 /processorParam:TextureFormat=Color
 /build:image/bubbles/bubble05.png
 
+#begin image/button.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:image/button.png
+
 #begin image/game_background.png
 /importer:TextureImporter
 /processor:TextureProcessor

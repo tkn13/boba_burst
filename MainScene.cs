@@ -1,7 +1,5 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using bubble_puzzle.GameObject;
-using bubbleTea;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -17,7 +15,18 @@ public class MainScene : Game
     private Texture2D _gameBoardTexture;
     private Texture2D _playerBaseTexture;
     private Texture2D _playerTubeTexture;
+    private Texture2D _buttonTexture;
+    private GameButton _startButton;
     private string _maptext;
+
+    private enum  MainGameState
+    {
+        MainMenu,
+        GamePlay,
+        GameOver
+    }
+
+    private MainGameState _currentMainGameState;
 
     public MainScene()
     {
@@ -34,6 +43,8 @@ public class MainScene : Game
 
         Singleton.Instance.gameBoard.Position = GameConstants.BOARD_POSITION;
         Singleton.Instance.scoreObject.Position = GameConstants.SCORE_POSITION;
+
+        _currentMainGameState = MainGameState.MainMenu;
 
         base.Initialize();
     }
@@ -82,6 +93,11 @@ public class MainScene : Game
         // for (int i = 0; i < data.Length; ++i) data[i] = Color.White;
         // _react.SetData(data);
         Singleton.Instance.gameBoard.aimAssistant.texture = _playerTubeTexture;
+
+        _buttonTexture = Content.Load<Texture2D>("image/button");
+        //create button
+        _startButton = new GameButton(_buttonTexture);
+
     }
 
     protected override void Update(GameTime gameTime)
@@ -90,7 +106,22 @@ public class MainScene : Game
         Singleton.Instance.CurrentKeyboard = Keyboard.GetState();
         Singleton.Instance.CurrentMouse = Mouse.GetState();
 
-        Singleton.Instance.gameBoard.Update(gameTime);
+        switch(_currentMainGameState)
+        {
+            case MainGameState.MainMenu:
+                if(_startButton.IsClicked())
+                {   
+                    Singleton.Instance.gameBoard.Reset();
+                    _currentMainGameState = MainGameState.GamePlay;
+                }
+                break;
+            case MainGameState.GamePlay:
+                Singleton.Instance.gameBoard.Update(gameTime);
+
+                break;
+            case MainGameState.GameOver:
+                break;
+        }
 
         Singleton.Instance.PreviousKeyboard = Singleton.Instance.CurrentKeyboard;
         Singleton.Instance.PreviousMouse = Singleton.Instance.CurrentMouse;
@@ -104,10 +135,7 @@ public class MainScene : Game
 
         _spriteBatch.Begin();
 
-        _spriteBatch.Draw(_backgroudTexture, new Vector2(0, 0), Color.White);
-        Singleton.Instance.gameBoard.Draw(_spriteBatch);
-        Singleton.Instance.scoreObject.Draw(_spriteBatch);
-
+            _spriteBatch.Draw(_backgroudTexture, new Vector2(0, 0), Color.White);
         if(GameConstants.DEBUG_MODE)
         {  
             Texture2D _react = new Texture2D(GraphicsDevice, 64* 5, 64 * 7 );
@@ -130,6 +158,20 @@ public class MainScene : Game
             }
             _spriteBatch.DrawString(_font, "Mouse Rotate Value: " + Singleton.Instance.MouseRotateValue, new Vector2(GameConstants.DEBUG_POSITION.X, GameConstants.DEBUG_POSITION.Y + 32 * 18), Color.White);
 
+        }
+
+
+        switch(_currentMainGameState)
+        {
+            case MainGameState.MainMenu:
+                _startButton.Draw(_spriteBatch);
+                break;
+            case MainGameState.GamePlay:
+                Singleton.Instance.gameBoard.Draw(_spriteBatch);
+                Singleton.Instance.scoreObject.Draw(_spriteBatch);
+                break;
+            case MainGameState.GameOver:
+                break;
         }
 
         _spriteBatch.End();

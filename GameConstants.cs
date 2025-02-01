@@ -23,6 +23,7 @@ public static class GameConstants
     public static Vector2 SHOOT_PIVOT_POSITION = new  Vector2(SHOOT_POSITION.X + (TILE_SIZE / 2), SHOOT_POSITION.Y + (TILE_SIZE / 2));
 
     public static Vector2 DEBUG_POSITION = new Vector2(TILE_SIZE * 10, TILE_SIZE * 3);
+    public static Vector2 PLAY_BUTTON_POSITION = new Vector2(TILE_SIZE * 10, TILE_SIZE * 5);
     public static float MOVE_SPEED = TILE_SIZE * 20;
 
     public static Random random = new Random();
