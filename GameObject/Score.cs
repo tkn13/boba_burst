@@ -10,6 +10,7 @@ namespace bubble_puzzle.GameObject
     
         public Score(Texture2D texture) : base(texture)
         {
+            
             scoreTexture = new Texture2D[10];
         }
 
@@ -21,7 +22,8 @@ namespace bubble_puzzle.GameObject
         //Draw score until 8 digits base on Singletons score by using scoreTexture[i]
         //first index is 0 and last index is 9
         public override void Draw(SpriteBatch spriteBatch)
-        {  
+        {   
+            spriteBatch.Draw(texture, GameConstants.SCORE_BOARD_POSITION, null, Color.White, Rotation, Vector2.Zero, 1, SpriteEffects.None, 0);
             string number = Singleton.Instance.score.ToString("D8");
             int numberLength = number.Length;
 

@@ -19,6 +19,7 @@ namespace bubble_puzzle.GameObject
         Bubble currentBubble;
         public AimAssistant aimAssistant;
         public Texture2D highlightTexture;
+        public Texture2D freezeTexture;
         public Texture2D[] bubbleTexture;
         public string mapText;
         public Player player;
@@ -202,15 +203,7 @@ namespace bubble_puzzle.GameObject
         {
             spriteBatch.Draw(texture, Position, null, Color.White, Rotation, Vector2.Zero, Scale, SpriteEffects.None, 0);
 
-            foreach (Bubble bubble in bubbles)
-            {
-                bubble.Draw(spriteBatch);
-            }
-
-            foreach (Bubble bubble in falledBubbles)
-            {
-                bubble.Draw(spriteBatch);
-            }
+            player.Draw(spriteBatch);
 
             switch (currentGameState)
             {
@@ -231,9 +224,21 @@ namespace bubble_puzzle.GameObject
                     break;
             }
 
+            foreach (Bubble bubble in bubbles)
+            {
+                bubble.Draw(spriteBatch);
+            }
 
-            player.Draw(spriteBatch);
+            foreach (Bubble bubble in falledBubbles)
+            {
+                bubble.Draw(spriteBatch);
+            }
             currentBubble.Draw(spriteBatch);
+
+            if(isFrozen)
+            {
+                spriteBatch.Draw(freezeTexture, Position, Color.White);
+            }
 
             base.Draw(spriteBatch);
         }

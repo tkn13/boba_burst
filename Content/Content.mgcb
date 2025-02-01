@@ -104,6 +104,18 @@
 /processorParam:TextureFormat=Color
 /build:image/button.png
 
+#begin image/freezeWall.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:image/freezeWall.png
+
 #begin image/game_background.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -248,7 +260,7 @@
 /processorParam:TextureFormat=Color
 /build:image/number/num9.png
 
-#begin image/player/hand.png
+#begin image/player/base.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -258,7 +270,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:image/player/hand.png
+/build:image/player/base.png
 
 #begin image/player/tube.png
 /importer:TextureImporter
@@ -271,4 +283,16 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:image/player/tube.png
+
+#begin image/scoreBoard.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:image/scoreBoard.png
 

@@ -13,9 +13,11 @@ public class MainScene : Game
     private SpriteFont _font;
     private Texture2D _backgroudTexture;
     private Texture2D _gameBoardTexture;
+    private Texture2D _freezeTexture;
     private Texture2D _playerBaseTexture;
     private Texture2D _playerTubeTexture;
     private Texture2D _buttonTexture;
+    private Texture2D _scoreBoardTexture;
     private GameButton _startButton;
     private string _maptext;
 
@@ -55,7 +57,9 @@ public class MainScene : Game
 
         _backgroudTexture = Content.Load<Texture2D>("image/game_background");
         _gameBoardTexture = Content.Load<Texture2D>("image/game_board");
+        _freezeTexture = Content.Load<Texture2D>("image/freezeWall");
         Singleton.Instance.gameBoard.texture = _gameBoardTexture;
+        Singleton.Instance.gameBoard.freezeTexture = _freezeTexture;
 
         //create highlight texture
         Texture2D _highlight = new Texture2D(GraphicsDevice, GameConstants.HITBOX_SIZE, GameConstants.HITBOX_SIZE);
@@ -71,17 +75,19 @@ public class MainScene : Game
         {
             Singleton.Instance.gameBoard.bubbleTexture[i] = Content.Load<Texture2D>("image/bubbles/bubble0" + i);
         }
-        Singleton.Instance.gameBoard.Reset();
+        //Singleton.Instance.gameBoard.Reset();
         //load all of score texture into array
         for (int i = 0; i < Singleton.Instance.scoreObject.scoreTexture.Length; i++)
         {
             Singleton.Instance.scoreObject.scoreTexture[i] = Content.Load<Texture2D>("image/number/num" + i);
         }
+        _scoreBoardTexture = Content.Load<Texture2D>("image/scoreBoard");
+        Singleton.Instance.scoreObject.texture = _scoreBoardTexture;
 
         _font = Content.Load<SpriteFont>("GameFont");
 
         //load player texture
-        _playerBaseTexture = Content.Load<Texture2D>("image/player/hand");
+        _playerBaseTexture = Content.Load<Texture2D>("image/player/base");
         Singleton.Instance.gameBoard.player.texture = _playerBaseTexture;
 
         _playerTubeTexture = Content.Load<Texture2D>("image/player/tube");
@@ -136,29 +142,29 @@ public class MainScene : Game
         _spriteBatch.Begin();
 
             _spriteBatch.Draw(_backgroudTexture, new Vector2(0, 0), Color.White);
-        if(GameConstants.DEBUG_MODE)
-        {  
-            Texture2D _react = new Texture2D(GraphicsDevice, 64* 5, 64 * 7 );
-            Color[] data = new Color[64 * 64 * 5 * 7];
-            for (int i = 0; i < data.Length; ++i) data[i] = Color.Black ;
-            _react.SetData(data);
-            _spriteBatch.Draw(_react, GameConstants.DEBUG_POSITION, Color.White);
-            _spriteBatch.DrawString(_font, "Debug Mode", GameConstants.DEBUG_POSITION, Color.White);
-           //parint array of board
-            for (int i = 0; i < 13; i++)
-            {
-                for (int j = 0; j < 8; j++)
-                {
-                    Vector2 position = new Vector2(GameConstants.DEBUG_POSITION.X + (j * 32), GameConstants.DEBUG_POSITION.Y + (i * 32) + 32);
-                    string bubbleType = Singleton.Instance.gameBoard.board[i, j] == null ? "-1" : ((int)(Singleton.Instance.gameBoard.board[i, j].currentBubbleType)) + "";
-                    _spriteBatch.DrawString(_font, bubbleType, position, Color.White);
-                }
-                string rowType = Singleton.Instance.gameBoard.rowType[i] ? "99" : "-99";
-                _spriteBatch.DrawString(_font, rowType, new Vector2(GameConstants.DEBUG_POSITION.X + 32 * 8, GameConstants.DEBUG_POSITION.Y + (i * 32) + 32), Color.White);
-            }
-            _spriteBatch.DrawString(_font, "Mouse Rotate Value: " + Singleton.Instance.MouseRotateValue, new Vector2(GameConstants.DEBUG_POSITION.X, GameConstants.DEBUG_POSITION.Y + 32 * 18), Color.White);
+        // if(GameConstants.DEBUG_MODE)
+        // {  
+        //     Texture2D _react = new Texture2D(GraphicsDevice, 64* 5, 64 * 7 );
+        //     Color[] data = new Color[64 * 64 * 5 * 7];
+        //     for (int i = 0; i < data.Length; ++i) data[i] = Color.Black ;
+        //     _react.SetData(data);
+        //     _spriteBatch.Draw(_react, GameConstants.DEBUG_POSITION, Color.White);
+        //     _spriteBatch.DrawString(_font, "Debug Mode", GameConstants.DEBUG_POSITION, Color.White);
+        //    //parint array of board
+        //     for (int i = 0; i < 13; i++)
+        //     {
+        //         for (int j = 0; j < 8; j++)
+        //         {
+        //             Vector2 position = new Vector2(GameConstants.DEBUG_POSITION.X + (j * 32), GameConstants.DEBUG_POSITION.Y + (i * 32) + 32);
+        //             string bubbleType = Singleton.Instance.gameBoard.board[i, j] == null ? "-1" : ((int)(Singleton.Instance.gameBoard.board[i, j].currentBubbleType)) + "";
+        //             _spriteBatch.DrawString(_font, bubbleType, position, Color.White);
+        //         }
+        //         string rowType = Singleton.Instance.gameBoard.rowType[i] ? "99" : "-99";
+        //         _spriteBatch.DrawString(_font, rowType, new Vector2(GameConstants.DEBUG_POSITION.X + 32 * 8, GameConstants.DEBUG_POSITION.Y + (i * 32) + 32), Color.White);
+        //     }
+        //     _spriteBatch.DrawString(_font, "Mouse Rotate Value: " + Singleton.Instance.MouseRotateValue, new Vector2(GameConstants.DEBUG_POSITION.X, GameConstants.DEBUG_POSITION.Y + 32 * 18), Color.White);
 
-        }
+        // }
 
 
         switch(_currentMainGameState)

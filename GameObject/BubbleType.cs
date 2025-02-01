@@ -6,7 +6,7 @@ namespace bubble_puzzle.GameObject
         Green,
         Blue,
         Yellow,
-        Frozen,
-        Bomb
+        Bomb,
+        Frozen
     }
 }
