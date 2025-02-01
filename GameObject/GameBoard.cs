@@ -109,6 +109,7 @@ namespace bubble_puzzle.GameObject
             {
                 case GameState.BubbleReload:
 
+                    availableTypes.Clear();
                     currentBubble = new Bubble(null);
                     //currentBubble.isHighlighted = true;
                     currentBubble.Position = GameConstants.SHOOT_POSITION;
