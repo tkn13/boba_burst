@@ -63,23 +63,6 @@ namespace bubble_puzzle.GameObject
             base.Reset();
         }
 
-        //Random Bubble Type Function with weight 
-        //base from it's child bubbles there have a chance to spawn with the same type
-        // public int RandomBubbleType(List<Bubble> bubbles)
-        // {
-        //     do
-        //     {
-        //         int randomIndex = GameConstants.random.Next(bubbles.Count);
-        //         if (bubbles.Count > 0)
-        //         {
-        //             currentBubbleType = bubbles[randomIndex].currentBubbleType;
-        //         }
-        //     } 
-        //     while (currentBubbleType == BubbleType.Frozen || currentBubbleType == BubbleType.Bomb);
-
-        //     return (int)currentBubbleType;
-        // }
-
         // Random the type of bubble
         public BubbleType RandomBubbleType(List<BubbleType> availableTypes, List<BubbleType> biasTypes)
         {

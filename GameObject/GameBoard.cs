@@ -110,6 +110,7 @@ namespace bubble_puzzle.GameObject
                     //currentBubble.isHighlighted = true;
                     currentBubble.Position = GameConstants.SHOOT_POSITION;
 
+                    // create available types from bubbles in the board
                     foreach (var bubble in bubbles)
                     {
                         if (!(bubble.currentBubbleType == BubbleType.Frozen || bubble.currentBubbleType == BubbleType.Bomb))
