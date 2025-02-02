@@ -1,10 +1,10 @@
 ﻿using System.IO;
-using bubble_puzzle.GameObject;
+using boba_burst.GameObject;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace bubble_puzzle;
+namespace boba_burst;
 
 public class MainScene : Game
 {

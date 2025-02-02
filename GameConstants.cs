@@ -1,7 +1,7 @@
 using System;
 using System.Numerics;
 
-namespace bubble_puzzle;
+namespace boba_burst;
 
 public static class GameConstants
 {

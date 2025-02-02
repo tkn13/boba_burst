@@ -1,7 +1,7 @@
-using bubble_puzzle.GameObject;
+using boba_burst.GameObject;
 using Microsoft.Xna.Framework.Input;
 
-namespace bubble_puzzle
+namespace boba_burst
 {
     class Singleton
     {

@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace bubble_puzzle.GameObject
+namespace boba_burst.GameObject
 {
     public class GameButton : GameObject
     {

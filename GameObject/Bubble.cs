@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace bubble_puzzle.GameObject
+namespace boba_burst.GameObject
 {
     public class Bubble : GameObject
     {
