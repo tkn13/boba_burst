@@ -31,14 +31,6 @@ namespace bubble_puzzle.GameObject
             {
                 spriteBatch.Draw(scoreTexture[int.Parse(number[i].ToString())], new Vector2(Position.X + (GameConstants.SCORE_TILE_SIZE * i), Position.Y), Color.White);
             }
-            //Console.WriteLine(number);
-            // string[] numberArray = number.Split("");
-            // Console.WriteLine(numberArray);
-            // Console.WriteLine(numberArray.Length);
-            // for (int i = 0; i < numberArray.Length; i++)
-            // {
-            //     spriteBatch.Draw(scoreTexture[int.Parse(numberArray[i])], new Vector2(Position.X + (GameConstants.SCORE_TILE_SIZE * i), Position.Y), Color.White);
-            // }
             
             base.Draw(spriteBatch);
         }

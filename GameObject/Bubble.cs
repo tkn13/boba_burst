@@ -22,9 +22,9 @@ namespace bubble_puzzle.GameObject
             Position += direaction * GameConstants.MOVE_SPEED * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             //check if the bubble is collide with the right wall
-            if (Position.X + GameConstants.TILE_SIZE > GameConstants.BOARD_POSITION.X + (GameConstants.TILE_SIZE * 8))
+            if (Position.X + GameConstants.TILE_SIZE > GameConstants.BOARD_POSITION.X + (GameConstants.TILE_SIZE * GameConstants.BOARD_WIDTH))
             {
-                Position.X = GameConstants.BOARD_POSITION.X + (GameConstants.TILE_SIZE * 8) - GameConstants.TILE_SIZE;
+                Position.X = GameConstants.BOARD_POSITION.X + (GameConstants.TILE_SIZE * GameConstants.BOARD_WIDTH) - GameConstants.TILE_SIZE;
                 Velocity.X *= -1;
             }
 

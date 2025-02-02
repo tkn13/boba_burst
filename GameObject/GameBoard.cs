@@ -17,11 +17,10 @@ namespace bubble_puzzle.GameObject
         List<Bubble> walls;
         List<Bubble> falledBubbles;
         List<Bubble> killedBubbles;
-         HashSet<BubbleType> availableTypes;
+        HashSet<BubbleType> availableTypes;
         Bubble currentBubble;
         Bubble previousBubble;
         int sameTypeCount;
-        int maxSameType;
         public AimAssistant aimAssistant;
         public Texture2D highlightTexture;
         public Texture2D freezeTexture;
@@ -31,13 +30,13 @@ namespace bubble_puzzle.GameObject
         public int currentRootRow;
 
         public bool isFrozen;
-        public float frozenDuration;
+
         public float frozenTick;
 
         public GameBoard(Texture2D texture) : base(texture)
         {
-            board = new Bubble[13, 8];
-            rowType = new bool[13];
+            board = new Bubble[GameConstants.BOARD_HEIGHT, GameConstants.BOARD_WIDTH];
+            rowType = new bool[GameConstants.BOARD_HEIGHT];
             bubbles = new List<Bubble>();
             matchedBubbles = new List<Bubble>();
             falledBubbles = new List<Bubble>();
@@ -49,15 +48,13 @@ namespace bubble_puzzle.GameObject
             walls = new List<Bubble>();
             isFrozen = false;
             sameTypeCount = 0;
-            maxSameType = 3;
-            frozenDuration = 3;
             frozenTick = 0;
             currentRootRow = 0;
 
             _tick = 0;
         }
 
-        enum GameState
+        public enum GameState
         {
             BubbleReload,
             Aim,
@@ -65,28 +62,15 @@ namespace bubble_puzzle.GameObject
             BubbleBounce,
             BubbleMatch,
             BubbleFall,
+            GameOver,
+            GameWin
 
         }
-        GameState currentGameState;
+        public GameState currentGameState;
 
         public override void Update(GameTime gameTime)
         {
             _tick += (float)gameTime.ElapsedGameTime.Ticks / TimeSpan.TicksPerSecond;
-            //rotate the aim assistant clockwise every 1 second 10 degree
-            if (_tick > 5 && !isFrozen)
-            {
-                //aimAssistant.Rotation += MathHelper.ToRadians(10);
-                ceilingDrop();
-                _tick = 0;
-            }
-            else if (isFrozen)
-            {
-                if (_tick > frozenTick + frozenDuration)
-                {
-                    isFrozen = false;
-                    _tick = frozenTick;
-                }
-            }
 
             foreach (Bubble bubble in falledBubbles)
             {
@@ -102,14 +86,14 @@ namespace bubble_puzzle.GameObject
             {
                 falledBubbles.Remove(bubble);
             }
-            killedBubbles.Clear();
+            killedBubbles?.Clear();
 
 
             switch (currentGameState)
             {
                 case GameState.BubbleReload:
 
-                    availableTypes.Clear();
+                    availableTypes?.Clear();
                     currentBubble = new Bubble(null);
                     //currentBubble.isHighlighted = true;
                     currentBubble.Position = GameConstants.SHOOT_POSITION;
@@ -128,11 +112,11 @@ namespace bubble_puzzle.GameObject
                     {
                         int bubleType = (int)currentBubble.RandomBubbleType(new List<BubbleType>(availableTypes), new List<BubbleType>());
                         currentBubble.setTexture(bubbleTexture[bubleType], highlightTexture);
-                    } 
-                    while (currentBubble == previousBubble && sameTypeCount >= maxSameType);
+                    }
+                    while (currentBubble == previousBubble && sameTypeCount >= GameConstants.SAME_TYPE_RANDOM_LIMIT);
 
                     // same type streak counter and update previous bubble 
-                    if (currentBubble == previousBubble) 
+                    if (currentBubble == previousBubble)
                     {
                         sameTypeCount++;
                     }
@@ -146,6 +130,25 @@ namespace bubble_puzzle.GameObject
 
                     break;
                 case GameState.Aim:
+
+                    //ceiliing will drop only when in Aim state to prevent the ceiling drop when the bubble is bouncing and cause the bubble to stuck
+                    if (_tick > GameConstants.CEILING_TIME_DURATION && !isFrozen)
+                    {
+                        ceilingDrop();
+                        if (isgameOver())
+                        {
+                            currentGameState = GameState.GameOver;
+                        }
+                        _tick = 0;
+                    }
+                    else if (isFrozen)
+                    {
+                        if (_tick > frozenTick + GameConstants.FREEZE_TIME_DURATION)
+                        {
+                            isFrozen = false;
+                            _tick = frozenTick;
+                        }
+                    }
 
                     //check if mouse is in the game window
                     if (Singleton.Instance.CurrentMouse.X < 0 || Singleton.Instance.CurrentMouse.X > GameConstants.GAME_WINDOW_WIDTH || Singleton.Instance.CurrentMouse.Y < 0 || Singleton.Instance.CurrentMouse.Y > GameConstants.GAME_WINDOW_HEIGHT)
@@ -209,7 +212,14 @@ namespace bubble_puzzle.GameObject
                     matchedBubbles = checkMatch(currentBubble);
                     if (matchedBubbles == null)
                     {
-                        currentGameState = GameState.BubbleReload;
+                        if (isgameOver())
+                        {
+                            currentGameState = GameState.GameOver;
+                        }
+                        else
+                        {
+                            currentGameState = GameState.BubbleReload;
+                        }
                     }
                     else
                     {
@@ -218,7 +228,7 @@ namespace bubble_puzzle.GameObject
                     break;
                 case GameState.BubbleFall:
                     falledBubbles = checkFall();
-                    matchedBubbles.Clear();
+                    matchedBubbles?.Clear();
                     calculateScore();
 
                     foreach (Bubble bubble in falledBubbles)
@@ -231,7 +241,14 @@ namespace bubble_puzzle.GameObject
                         bubble.setFall(true);
                     }
 
-                    currentGameState = GameState.BubbleReload;
+                    if (checkWin())
+                    {
+                        currentGameState = GameState.GameWin;
+                    }
+                    else
+                    {
+                        currentGameState = GameState.BubbleReload;
+                    }
                     break;
             }
             base.Update(gameTime);
@@ -278,7 +295,7 @@ namespace bubble_puzzle.GameObject
             }
             currentBubble.Draw(spriteBatch);
 
-            if(isFrozen)
+            if (isFrozen)
             {
                 spriteBatch.Draw(freezeTexture, Position, Color.White);
             }
@@ -289,26 +306,31 @@ namespace bubble_puzzle.GameObject
         public override void Reset()
         {
             //Reset the board
-            for (int i = 0; i < 13; i++)
+            for (int i = 0; i < GameConstants.BOARD_HEIGHT; i++)
             {
-                for (int j = 0; j < 8; j++)
+                for (int j = 0; j < GameConstants.BOARD_WIDTH; j++)
                 {
                     board[i, j] = null;
                 }
             }
 
             //Destroy all bubbles
-            bubbles.Clear();
+            bubbles?.Clear();
+            killedBubbles?.Clear();
+            falledBubbles?.Clear();
 
             string[] lines = mapText.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-            for (int i = 0; i < 13; i++)
+            for (int i = 0; i < GameConstants.BOARD_HEIGHT; i++)
             {
                 string trimmed = lines[i].Trim();
                 trimmed = trimmed.Replace(" ", "");
                 string[] line = trimmed.Split(',');
                 //create new bubble;
-                for (int j = 0; j < 8; j++)
+                for (int j = 0; j < GameConstants.BOARD_WIDTH; j++)
                 {
+                    //in map file text the last element of each line tell the row type 
+                    //99 means this row is even row (it have 8 bubble) and 
+                    //-99 means this row is odd row (it have 7 bubble)
                     //update row type
                     if (line[8] == "99")
                     {
@@ -345,22 +367,22 @@ namespace bubble_puzzle.GameObject
             }
 
             currentBubble = new Bubble(null);
-            //currentBubble.isHighlighted = true;
             currentBubble.Position = GameConstants.SHOOT_POSITION;
             int bubleType = (int)currentBubble.RandomBubbleType(new List<BubbleType>()
                     {
-                       BubbleType.Red,
-                       BubbleType.Green,
                        BubbleType.Blue,
-                       BubbleType.Yellow               
+                       BubbleType.Orange,
+                       BubbleType.Purple,
+                       BubbleType.Pink
                     }, new List<BubbleType>());
 
             currentBubble.setTexture(bubbleTexture[bubleType], highlightTexture);
             aimAssistant.Rotation = 0;
             Singleton.Instance.score = 0;
             currentRootRow = 0;
-            walls.Clear();
+            walls?.Clear();
             _tick = 0;
+            isFrozen = false;
 
             currentGameState = GameState.Aim;
 
@@ -560,16 +582,16 @@ namespace bubble_puzzle.GameObject
             board[row, col] = currentBubble;
         }
 
-        public void gameOver()
+        public bool isgameOver()
         {
             for (int j = 0; j < board.GetLength(1); j++)
             {
                 if (board[GameConstants.GAME_OVER_LINE, j] != null)
                 {
-                    Console.WriteLine("GAME OVER! Please press SPACEBAR to try again");
-                    //Reset();
+                    return true;
                 }
             }
+            return false;
         }
 
         public bool checkWin()
