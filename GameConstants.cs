@@ -27,5 +27,9 @@ public static class GameConstants
     public static Vector2 PLAY_BUTTON_POSITION = new Vector2(TILE_SIZE * 10, TILE_SIZE * 9);
     public static float MOVE_SPEED = TILE_SIZE * 20;
 
+    public const int SAME_TYPE_RANDOM_LIMIT = 3;
+    public const int FREEZE_TIME_DURATION = 3;
+    public const int CEILING_TIME_DURATION = 5;
+
     public static Random random = new Random();
 }

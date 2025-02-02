@@ -2,10 +2,10 @@ namespace bubble_puzzle.GameObject
 {
     public enum BubbleType
     {
-        Red,
-        Green,
         Blue,
-        Yellow,
+        Orange,
+        Purple,
+        Pink,
         Bomb,
         Frozen,
         TopLeftWall,

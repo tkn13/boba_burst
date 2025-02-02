@@ -83,7 +83,6 @@ public class MainScene : Game
             if (i<10) Singleton.Instance.gameBoard.bubbleTexture[i] = Content.Load<Texture2D>("image/bubbles/bubble0" + i);
             else Singleton.Instance.gameBoard.bubbleTexture[i] = Content.Load<Texture2D>("image/bubbles/bubble" + i);
         }
-        //Singleton.Instance.gameBoard.Reset();
         //load all of score texture into array
         for (int i = 0; i < Singleton.Instance.scoreObject.scoreTexture.Length; i++)
         {
@@ -101,11 +100,7 @@ public class MainScene : Game
         _playerTubeTexture = Content.Load<Texture2D>("image/player/tube");
 
 
-        // //create aim assistant texture
-        // Texture2D _react = new Texture2D(GraphicsDevice, 64, 64*5);
-        // Color[] data = new Color[64 * 64 * 5];
-        // for (int i = 0; i < data.Length; ++i) data[i] = Color.White;
-        // _react.SetData(data);
+        //load aim assistant texture
         Singleton.Instance.gameBoard.aimAssistant.texture = _playerTubeTexture;
 
         _buttonTexture = Content.Load<Texture2D>("image/button/play_button");
@@ -185,6 +180,7 @@ public class MainScene : Game
         _spriteBatch.Begin();
 
             _spriteBatch.Draw(_backgroudTexture, new Vector2(0, 0), Color.White);
+
         if(GameConstants.DEBUG_MODE)
         {  
             Texture2D _react = new Texture2D(GraphicsDevice, 64* 5, 64 * 7 );
