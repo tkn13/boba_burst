@@ -1,4 +1,4 @@
-namespace bubble_puzzle.GameObject
+namespace boba_burst.GameObject
 {
     public enum BubbleType
     {
